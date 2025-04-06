@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CleaningDashboard from "./pages/cleaning/CleaningDashboard";
 import ServicesDashboard from "./pages/services/ServicesDashboard";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
 import PrivateRoute from "./components/PrivateRoute";
 
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
           
           {/* Rutas protegidas generales */}
           <Route path="/dashboard" element={

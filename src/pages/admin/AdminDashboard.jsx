@@ -10,6 +10,7 @@ const AdminDashboard = () => {
     todayCheckIns: 0,
     todayCheckOuts: 0
   });
+
   const [recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,7 +19,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // En un caso real, estas serían llamadas a tu API
         const [statsRes, activitiesRes] = await Promise.all([
           fetch('http://localhost:5000/api/admin/stats', {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -33,12 +33,13 @@ const AdminDashboard = () => {
 
         if (statsRes.ok && activitiesRes.ok) {
           setStats(statsData);
-          setRecentActivities(activitiesData);
+          setRecentActivities(Array.isArray(activitiesData) ? activitiesData : []);
         } else {
           setError('Error al cargar los datos del dashboard');
         }
-      } catch (err) {
-        setError('Error de conexión');
+      }catch (err) {
+        console.error('Error al cargar los datos del dashboard:', err);
+        setError('Error de conexión con el servidor');
       } finally {
         setLoading(false);
       }
@@ -47,8 +48,13 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, [token]);
 
-  if (loading) return <div className="flex justify-center items-center h-screen">Cargando...</div>;
-  if (error) return <div className="text-red-500 text-center">{error}</div>;
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">Cargando...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center">{error}</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -60,7 +66,9 @@ const AdminDashboard = () => {
           <h3 className="text-lg font-semibold mb-2">Ocupación</h3>
           <div className="flex justify-between items-center">
             <span className="text-3xl font-bold text-blue-600">
-              {Math.round((stats.occupiedRooms / stats.totalRooms) * 100)}%
+              {stats.totalRooms > 0 
+                ? Math.round((stats.occupiedRooms / stats.totalRooms) * 100) 
+                : 0}%
             </span>
             <span className="text-gray-500">
               {stats.occupiedRooms}/{stats.totalRooms} habitaciones
@@ -109,30 +117,34 @@ const AdminDashboard = () => {
       {/* Actividades Recientes */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold mb-4">Actividades Recientes</h3>
-        <div className="space-y-4">
-          {recentActivities.map(activity => (
-            <div 
-              key={activity._id} 
-              className="flex items-center justify-between border-b pb-4"
-            >
-              <div>
-                <p className="font-medium">{activity.description}</p>
-                <p className="text-sm text-gray-500">
-                  {new Date(activity.timestamp).toLocaleString()}
-                </p>
+        {recentActivities.length > 0 ? (
+          <div className="space-y-4">
+            {recentActivities.map((activity, index) => (
+              <div 
+                key={activity._id || index} 
+                className="flex items-center justify-between border-b pb-4"
+              >
+                <div>
+                  <p className="font-medium">{activity.description}</p>
+                  <p className="text-sm text-gray-500">
+                    {activity.timestamp ? new Date(activity.timestamp).toLocaleString() : "Fecha desconocida"}
+                  </p>
+                </div>
+                <span className={`px-3 py-1 rounded text-sm ${
+                  activity.type === 'check_in' ? 'bg-green-100 text-green-800' :
+                  activity.type === 'check_out' ? 'bg-red-100 text-red-800' :
+                  activity.type === 'cleaning' ? 'bg-blue-100 text-blue-800' :
+                  activity.type === 'service' ? 'bg-purple-100 text-purple-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {activity.type || 'Desconocido'}
+                </span>
               </div>
-              <span className={`px-3 py-1 rounded text-sm ${
-                activity.type === 'check_in' ? 'bg-green-100 text-green-800' :
-                activity.type === 'check_out' ? 'bg-red-100 text-red-800' :
-                activity.type === 'cleaning' ? 'bg-blue-100 text-blue-800' :
-                activity.type === 'service' ? 'bg-purple-100 text-purple-800' :
-                'bg-gray-100 text-gray-800'
-              }`}>
-                {activity.type}
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">No hay actividades recientes.</p>
+        )}
       </div>
     </div>
   );
