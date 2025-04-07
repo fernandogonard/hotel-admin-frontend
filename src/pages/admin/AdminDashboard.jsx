@@ -1,5 +1,8 @@
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import QuickActions from '../../components/QuickActions';
+import FilterPanel from '../../components/FilterPanel';
+import OccupancyChart from '../../components/Charts/OccupancyChart';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -12,6 +15,8 @@ const AdminDashboard = () => {
   });
 
   const [recentActivities, setRecentActivities] = useState([]);
+  const [availabilityGrid, setAvailabilityGrid] = useState([]);
+  const [days, setDays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token } = useContext(AuthContext);
@@ -37,7 +42,7 @@ const AdminDashboard = () => {
         } else {
           setError('Error al cargar los datos del dashboard');
         }
-      }catch (err) {
+      } catch (err) {
         console.error('Error al cargar los datos del dashboard:', err);
         setError('Error de conexión con el servidor');
       } finally {
@@ -45,7 +50,36 @@ const AdminDashboard = () => {
       }
     };
 
+    const fetchAvailabilityGrid = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/rooms/availability-grid', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          setAvailabilityGrid(data);
+        } else {
+          console.error('Error al obtener disponibilidad');
+        }
+      } catch (err) {
+        console.error('Error de conexión al obtener disponibilidad:', err);
+      }
+    };
+
+    const generateDays = () => {
+      const result = [];
+      const today = new Date();
+      for (let i = 0; i < 30; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() + i);
+        result.push(date.toISOString().split('T')[0]);
+      }
+      setDays(result);
+    };
+
     fetchDashboardData();
+    fetchAvailabilityGrid();
+    generateDays();
   }, [token]);
 
   if (loading) {
@@ -57,11 +91,14 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Panel de Administración</h1>
+    <div className="container mx-auto px-4 py-8 space-y-10">
+      <h1 className="text-3xl font-bold mb-4">Panel de Administración</h1>
+
+      <QuickActions />
+      <FilterPanel />
 
       {/* Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-2">Ocupación</h3>
           <div className="flex justify-between items-center">
@@ -97,8 +134,8 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Check-ins/Check-outs de hoy */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      {/* Check-ins y Check-outs de hoy */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-4">Check-ins de Hoy</h3>
           <div className="text-3xl font-bold text-indigo-600">
@@ -113,6 +150,44 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Grilla de disponibilidad */}
+      <div className="overflow-x-auto bg-white rounded-lg shadow p-4">
+        <h3 className="text-lg font-semibold mb-4">Disponibilidad (30 días)</h3>
+        <table className="min-w-full table-auto text-sm text-center border">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-2 py-1 border">Habitación</th>
+              {days.map(date => (
+                <th key={date} className="px-2 py-1 border">{date.slice(5)}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {availabilityGrid.map(room => (
+              <tr key={room.roomId}>
+                <td className="px-2 py-1 border font-medium">{room.roomNumber}</td>
+                {days.map(date => (
+                  <td
+                    key={date}
+                    className={`px-2 py-1 border ${
+                      room.dailyStatus[date] === 'ocupado'
+                        ? 'bg-red-200'
+                        : room.dailyStatus[date] === 'reservado'
+                        ? 'bg-yellow-200'
+                        : 'bg-green-100'
+                    }`}
+                  >
+                    {room.dailyStatus[date]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <OccupancyChart />
 
       {/* Actividades Recientes */}
       <div className="bg-white rounded-lg shadow p-6">

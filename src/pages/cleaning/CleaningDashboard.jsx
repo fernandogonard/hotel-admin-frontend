@@ -22,7 +22,7 @@ const CleaningDashboard = () => {
           setError(data.message);
         }
       } catch (err) {
-        setError('Error al cargar las tareas');
+        setError(`Error al actualizar la tarea: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -48,7 +48,7 @@ const CleaningDashboard = () => {
         ));
       }
     } catch (err) {
-      setError('Error al actualizar la tarea');
+      setError(`Error al actualizar la tarea: ${err.message}`);
     }
   };
 

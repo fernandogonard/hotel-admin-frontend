@@ -108,6 +108,15 @@
 .shadow-lg {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
+.status-disponible {
+  background-color: #d1fae5;
+}
+.status-reservado {
+  background-color: #fef3c7;
+}
+.status-ocupado {
+  background-color: #fecaca;
+}
 
 /* Colores de texto */
 .text-primary {
