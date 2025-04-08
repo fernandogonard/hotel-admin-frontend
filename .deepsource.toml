@@ -4,8 +4,5 @@ version = 1
 name = "javascript"
 
   [analyzers.meta]
-  environment = [
-    "mongo",
-    "browser",
-    "nodejs"
-  ]
+  plugins = ["react"]
+  environment = ["nodejs"]
