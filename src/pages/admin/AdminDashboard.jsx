@@ -3,6 +3,13 @@ import { AuthContext } from '../../context/AuthContext';
 import QuickActions from '../../components/QuickActions';
 import FilterPanel from '../../components/FilterPanel';
 import OccupancyChart from '../../components/Charts/OccupancyChart';
+import LoadingSpinner from '../../components/LoadingSpinner.jsx';
+import ErrorMessage from '../../components/ErrorMessage.jsx';
+
+
+
+
+
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -26,10 +33,10 @@ const AdminDashboard = () => {
       try {
         const [statsRes, activitiesRes] = await Promise.all([
           fetch('http://localhost:5000/api/admin/stats', {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
           }),
           fetch('http://localhost:5000/api/admin/activities', {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
           })
         ]);
 
@@ -50,10 +57,14 @@ const AdminDashboard = () => {
       }
     };
 
+    fetchDashboardData();
+  }, [token]);
+
+  useEffect(() => {
     const fetchAvailabilityGrid = async () => {
       try {
         const res = await fetch('http://localhost:5000/api/rooms/availability-grid', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
         if (res.ok) {
@@ -66,89 +77,47 @@ const AdminDashboard = () => {
       }
     };
 
+    fetchAvailabilityGrid();
+  }, [token]);
+
+  useEffect(() => {
     const generateDays = () => {
       const result = [];
       const today = new Date();
       for (let i = 0; i < 30; i++) {
         const date = new Date(today);
-        date.setDate(date.getDate() + i);
+        date.setDate(today.getDate() + i);
         result.push(date.toISOString().split('T')[0]);
       }
       setDays(result);
     };
 
-    fetchDashboardData();
-    fetchAvailabilityGrid();
     generateDays();
-  }, [token]);
+  }, []);
 
-  if (loading) {
-    return <div className="flex justify-center items-center h-screen">Cargando...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
-  }
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage message={error} />;
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-10">
-      <h1 className="text-3xl font-bold mb-4">Panel de Administración</h1>
+      <h1 className="text-3xl font-bold flex items-center gap-2">
+        📊 Panel de Administración
+      </h1>
 
       <QuickActions />
       <FilterPanel />
 
       {/* Estadísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-2">Ocupación</h3>
-          <div className="flex justify-between items-center">
-            <span className="text-3xl font-bold text-blue-600">
-              {stats.totalRooms > 0 
-                ? Math.round((stats.occupiedRooms / stats.totalRooms) * 100) 
-                : 0}%
-            </span>
-            <span className="text-gray-500">
-              {stats.occupiedRooms}/{stats.totalRooms} habitaciones
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-2">Limpieza Pendiente</h3>
-          <div className="flex justify-between items-center">
-            <span className="text-3xl font-bold text-yellow-600">
-              {stats.pendingCleanings}
-            </span>
-            <span className="text-gray-500">habitaciones</span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-2">Servicios Activos</h3>
-          <div className="flex justify-between items-center">
-            <span className="text-3xl font-bold text-green-600">
-              {stats.activeBookings}
-            </span>
-            <span className="text-gray-500">reservas</span>
-          </div>
-        </div>
+        <StatCard title="Ocupación" value={`${Math.round((stats.occupiedRooms / stats.totalRooms) * 100 || 0)}%`} sub={`${stats.occupiedRooms}/${stats.totalRooms} habitaciones`} color="blue" />
+        <StatCard title="Limpieza Pendiente" value={stats.pendingCleanings} sub="habitaciones" color="yellow" />
+        <StatCard title="Servicios Activos" value={stats.activeBookings} sub="reservas" color="green" />
       </div>
 
-      {/* Check-ins y Check-outs de hoy */}
+      {/* Check-ins y Check-outs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Check-ins de Hoy</h3>
-          <div className="text-3xl font-bold text-indigo-600">
-            {stats.todayCheckIns}
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Check-outs de Hoy</h3>
-          <div className="text-3xl font-bold text-purple-600">
-            {stats.todayCheckOuts}
-          </div>
-        </div>
+        <StatCard title="Check-ins de Hoy" value={stats.todayCheckIns} color="indigo" />
+        <StatCard title="Check-outs de Hoy" value={stats.todayCheckOuts} color="purple" />
       </div>
 
       {/* Grilla de disponibilidad */}
@@ -167,20 +136,18 @@ const AdminDashboard = () => {
             {availabilityGrid.map(room => (
               <tr key={room.roomId}>
                 <td className="px-2 py-1 border font-medium">{room.roomNumber}</td>
-                {days.map(date => (
-                  <td
-                    key={date}
-                    className={`px-2 py-1 border ${
-                      room.dailyStatus[date] === 'ocupado'
-                        ? 'bg-red-200'
-                        : room.dailyStatus[date] === 'reservado'
-                        ? 'bg-yellow-200'
-                        : 'bg-green-100'
-                    }`}
-                  >
-                    {room.dailyStatus[date]}
-                  </td>
-                ))}
+                {days.map(date => {
+                  const status = room.dailyStatus[date];
+                  const bg =
+                    status === 'ocupado' ? 'bg-red-200 text-red-800 font-semibold' :
+                    status === 'reservado' ? 'bg-yellow-200 text-yellow-900' :
+                    'bg-green-100 text-green-800';
+                  return (
+                    <td key={date} className={`px-2 py-1 border ${bg}`} title={status}>
+                      {status !== 'libre' ? status : ''}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
@@ -189,20 +156,20 @@ const AdminDashboard = () => {
 
       <OccupancyChart />
 
-      {/* Actividades Recientes */}
+      {/* Actividades recientes */}
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold mb-4">Actividades Recientes</h3>
         {recentActivities.length > 0 ? (
           <div className="space-y-4">
             {recentActivities.map((activity, index) => (
-              <div 
-                key={activity._id || index} 
+              <div
+                key={activity._id || activity.timestamp || index}
                 className="flex items-center justify-between border-b pb-4"
               >
                 <div>
                   <p className="font-medium">{activity.description}</p>
                   <p className="text-sm text-gray-500">
-                    {activity.timestamp ? new Date(activity.timestamp).toLocaleString() : "Fecha desconocida"}
+                    {activity.timestamp ? new Date(activity.timestamp).toLocaleString() : 'Fecha desconocida'}
                   </p>
                 </div>
                 <span className={`px-3 py-1 rounded text-sm ${
@@ -224,5 +191,15 @@ const AdminDashboard = () => {
     </div>
   );
 };
+
+const StatCard = ({ title, value, sub = '', color = 'gray' }) => (
+  <div className="bg-white rounded-lg shadow p-6">
+    <h3 className="text-lg font-semibold mb-2">{title}</h3>
+    <div className="flex justify-between items-center">
+      <span className={`text-3xl font-bold text-${color}-600`}>{value}</span>
+      <span className="text-gray-500">{sub}</span>
+    </div>
+  </div>
+);
 
 export default AdminDashboard;
