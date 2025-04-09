@@ -6,11 +6,6 @@ import OccupancyChart from '../../components/Charts/OccupancyChart';
 import LoadingSpinner from '../../components/LoadingSpinner.jsx';
 import ErrorMessage from '../../components/ErrorMessage.jsx';
 
-
-
-
-
-
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
     totalRooms: 0,
@@ -29,70 +24,54 @@ const AdminDashboard = () => {
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchAllDashboardData = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const [statsRes, activitiesRes] = await Promise.all([
+        const [statsRes, activitiesRes, availabilityRes] = await Promise.all([
           fetch('http://localhost:5000/api/admin/stats', {
             headers: { Authorization: `Bearer ${token}` }
           }),
           fetch('http://localhost:5000/api/admin/activities', {
             headers: { Authorization: `Bearer ${token}` }
-          })
+          }),
+          fetch('http://localhost:5000/api/rooms/availability-grid', {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
         ]);
-
+  
         const statsData = await statsRes.json();
         const activitiesData = await activitiesRes.json();
-
-        if (statsRes.ok && activitiesRes.ok) {
-          setStats(statsData);
-          setRecentActivities(Array.isArray(activitiesData) ? activitiesData : []);
-        } else {
-          setError('Error al cargar los datos del dashboard');
-        }
+        const availabilityData = await availabilityRes.json();
+  
+        if (!statsRes.ok) throw new Error('Error cargando /admin/stats');
+        if (!activitiesRes.ok) throw new Error('Error cargando /admin/activities');
+        if (!availabilityRes.ok) throw new Error('Error cargando /rooms/availability-grid');
+  
+        setStats(statsData);
+        setRecentActivities(Array.isArray(activitiesData) ? activitiesData : []);
+        setAvailabilityGrid(Array.isArray(availabilityData) ? availabilityData : []);
       } catch (err) {
-        console.error('Error al cargar los datos del dashboard:', err);
-        setError('Error de conexión con el servidor');
+        console.error('[Dashboard Error]', err);
+        setError(err.message || 'Error de conexión con el servidor');
       } finally {
         setLoading(false);
       }
     };
-
-    fetchDashboardData();
+  
+    if (token) fetchAllDashboardData();
   }, [token]);
-
+  
+  // 🗓️ Generar los próximos 30 días una sola vez
   useEffect(() => {
-    const fetchAvailabilityGrid = async () => {
-      try {
-        const res = await fetch('http://localhost:5000/api/rooms/availability-grid', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setAvailabilityGrid(data);
-        } else {
-          console.error('Error al obtener disponibilidad');
-        }
-      } catch (err) {
-        console.error('Error de conexión al obtener disponibilidad:', err);
-      }
-    };
-
-    fetchAvailabilityGrid();
-  }, [token]);
-
-  useEffect(() => {
-    const generateDays = () => {
-      const result = [];
-      const today = new Date();
-      for (let i = 0; i < 30; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        result.push(date.toISOString().split('T')[0]);
-      }
-      setDays(result);
-    };
-
-    generateDays();
+    const result = [];
+    const today = new Date();
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      result.push(date.toISOString().split('T')[0]);
+    }
+    setDays(result);
   }, []);
 
   if (loading) return <LoadingSpinner />;
@@ -109,7 +88,12 @@ const AdminDashboard = () => {
 
       {/* Estadísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard title="Ocupación" value={`${Math.round((stats.occupiedRooms / stats.totalRooms) * 100 || 0)}%`} sub={`${stats.occupiedRooms}/${stats.totalRooms} habitaciones`} color="blue" />
+        <StatCard
+          title="Ocupación"
+          value={`${Math.round((stats.occupiedRooms / stats.totalRooms) * 100 || 0)}%`}
+          sub={`${stats.occupiedRooms}/${stats.totalRooms} habitaciones`}
+          color="blue"
+        />
         <StatCard title="Limpieza Pendiente" value={stats.pendingCleanings} sub="habitaciones" color="yellow" />
         <StatCard title="Servicios Activos" value={stats.activeBookings} sub="reservas" color="green" />
       </div>
@@ -128,19 +112,20 @@ const AdminDashboard = () => {
             <tr>
               <th className="px-2 py-1 border">Habitación</th>
               {days.map(date => (
-                <th key={date} className="px-2 py-1 border">{date.slice(5)}</th>
+                <th key={date} className="px-2 py-1 border whitespace-nowrap">{date.slice(5)}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {availabilityGrid.map(room => (
-              <tr key={room.roomId}>
-                <td className="px-2 py-1 border font-medium">{room.roomNumber}</td>
+              <tr key={room.roomId} className="hover:bg-gray-50">
+                <td className="px-2 py-1 border font-medium text-left">#{room.roomNumber}</td>
                 {days.map(date => {
                   const status = room.dailyStatus[date];
                   const bg =
                     status === 'ocupado' ? 'bg-red-200 text-red-800 font-semibold' :
                     status === 'reservado' ? 'bg-yellow-200 text-yellow-900' :
+                    status === 'mantenimiento' ? 'bg-gray-300 text-gray-800' :
                     'bg-green-100 text-green-800';
                   return (
                     <td key={date} className={`px-2 py-1 border ${bg}`} title={status}>
