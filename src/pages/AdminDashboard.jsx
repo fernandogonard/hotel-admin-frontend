@@ -1,7 +1,8 @@
-import React from 'react';
-import { Bar } from 'react-chartjs-2'; 
+import React, { useEffect, useState } from 'react';
+import axiosInstance from '../utils/axiosInstance';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Link } from 'react-router-dom';
+import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -18,7 +19,28 @@ const data = {
   ],
 };
 
+const DashboardChart = () => <Bar data={data} />;
+
 function AdminDashboard() {
+  const [stats, setStats] = useState({
+    occupiedRooms: 0,
+    totalReservations: 0,
+    availableRooms: 0,
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await axiosInstance.get('http://localhost:2117/api/rooms/admin-stats');
+        setStats(response.data);
+      } catch (error) {
+        console.error('Error al obtener estadísticas:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <div style={styles.container}>
       {/* Sidebar */}
@@ -44,22 +66,22 @@ function AdminDashboard() {
           <div style={styles.statsGrid}>
             <div style={styles.card}>
               <h3 style={styles.cardTitle}>Habitaciones Ocupadas</h3>
-              <p style={styles.cardValue}>30</p>
+              <p style={styles.cardValue}>{stats.occupiedRooms}</p>
             </div>
             <div style={styles.card}>
               <h3 style={styles.cardTitle}>Reservas Totales</h3>
-              <p style={styles.cardValue}>120</p>
+              <p style={styles.cardValue}>{stats.totalReservations}</p>
             </div>
             <div style={styles.card}>
               <h3 style={styles.cardTitle}>Disponibles</h3>
-              <p style={styles.cardValue}>10</p>
+              <p style={styles.cardValue}>{stats.availableRooms}</p>
             </div>
           </div>
 
           {/* Gráfico */}
           <div style={styles.chartContainer}>
             <h3 style={styles.chartTitle}>Ocupación Semestral</h3>
-            <Bar data={data} options={{ responsive: true, plugins: { legend: { display: false } } }} />
+            <DashboardChart />
           </div>
         </section>
       </main>

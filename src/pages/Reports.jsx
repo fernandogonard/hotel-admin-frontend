@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  LineElement,
-  PointElement
-} from 'chart.js';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 import { Link } from 'react-router-dom';
-
-ChartJS.register(BarElement, CategoryScale, LinearScale, LineElement, PointElement);
 
 const Sidebar = () => {
   const styles = {
@@ -60,111 +49,70 @@ const Sidebar = () => {
 };
 
 const Reports = () => {
-  const [generalStats, setGeneralStats] = useState(null);
-  const [reservationStats, setReservationStats] = useState(null);
-  const [roomStats, setRoomStats] = useState(null);
+  const [generalReports, setGeneralReports] = useState(null);
+  const [reservationReports, setReservationReports] = useState(null);
+  const [roomReports, setRoomReports] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchData();
+    const fetchReports = async () => {
+      try {
+        const generalRes = await axiosInstance.get('/api/reports/general');
+        const reservationRes = await axiosInstance.get('/api/reports/reservations');
+        const roomRes = await axiosInstance.get('/api/reports/rooms');
+        setGeneralReports(generalRes.data);
+        setReservationReports(reservationRes.data);
+        setRoomReports(roomRes.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Error al cargar los reportes');
+        setLoading(false);
+      }
+    };
+    fetchReports();
   }, []);
-
-  const fetchData = async () => {
-    try {
-      const [genRes, resStats, roomRes] = await Promise.all([
-        axios.get('http://localhost:5173/api/reports/general'),
-        axios.get('http://localhost:5173/api/reports/reservations'),
-        axios.get('http://localhost:5173/api/reports/rooms'),
-      ]);
-      setGeneralStats(genRes.data);
-      setReservationStats(resStats.data);
-      setRoomStats(roomRes.data);
-    } catch (error) {
-      console.error('Error al cargar informes:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return <div>Cargando informes...</div>;
-  }
 
   return (
     <div style={styles.container}>
       <Sidebar />
       <main style={styles.main}>
         <header>
-          <h1 style={styles.title}>Informes del Hotel</h1>
+          <h1 style={styles.title}>Informes</h1>
         </header>
-
         <section style={styles.contentGrid}>
-          {/* Informe General */}
           <div style={styles.statsGrid}>
             <div style={styles.card}>
-              <h3 style={styles.cardTitle}>Total Ingresos</h3>
-              <p style={styles.cardValue}>${generalStats?.totalRevenue}</p>
-            </div>
-            <div style={styles.card}>
-              <h3 style={styles.cardTitle}>Total Reservas</h3>
-              <p style={styles.cardValue}>{generalStats?.totalReservations}</p>
-            </div>
-            <div style={styles.card}>
-              <h3 style={styles.cardTitle}>Ocupación Promedio</h3>
-              <p style={styles.cardValue}>{generalStats?.occupancyRate}%</p>
-            </div>
-            <div style={styles.card}>
-              <h3 style={styles.cardTitle}>Gráfica de Ocupación</h3>
-              {/* Verificación de datos antes de pasar a la gráfica */}
-              {generalStats?.occupancyChart ? (
-                <Bar data={generalStats.occupancyChart} />
-              ) : (
-                <p>No hay datos disponibles para la gráfica de ocupación</p>
+              <h2 style={styles.cardTitle}>Generales</h2>
+              {generalReports && (
+                <ul>
+                  <li>Total de Habitaciones: {generalReports.totalRooms}</li>
+                  <li>Habitaciones Disponibles: {generalReports.availableRooms}</li>
+                  <li>Habitaciones Ocupadas: {generalReports.occupiedRooms}</li>
+                </ul>
               )}
             </div>
-          </div>
-
-          {/* Informe de Reservas */}
-          <div style={styles.statsGrid}>
             <div style={styles.card}>
-              <h3 style={styles.cardTitle}>Noches Reservadas</h3>
-              <p style={styles.cardValue}>{reservationStats?.totalNights}</p>
+              <h2 style={styles.cardTitle}>Reservas</h2>
+              {reservationReports && (
+                <ul>
+                  <li>Total de Reservas: {reservationReports.totalReservations}</li>
+                  <li>Reservas Activas: {reservationReports.activeReservations}</li>
+                  <li>Reservas Completadas: {reservationReports.completedReservations}</li>
+                </ul>
+              )}
             </div>
             <div style={styles.card}>
-              <h3 style={styles.cardTitle}>Tasa Cancelación</h3>
-              <p style={styles.cardValue}>{reservationStats?.cancellationRate}%</p>
-            </div>
-            <div style={styles.card}>
-              <h3 style={styles.cardTitle}>Estancia Promedio</h3>
-              <p style={styles.cardValue}>{reservationStats?.avgStay} días</p>
-            </div>
-          </div>
-
-          {/* Informe de Habitaciones */}
-          <div style={styles.statsGrid}>
-            <div style={styles.card}>
-              <h3 style={styles.cardTitle}>Más Reservadas</h3>
-              <ul>
-                {roomStats?.mostBooked?.map((r, i) => (
-                  <li key={i}>{r.roomNumber} - {r.count} reservas</li>
-                ))}
-              </ul>
-            </div>
-            <div style={styles.card}>
-              <h3 style={styles.cardTitle}>Menos Utilizadas</h3>
-              <ul>
-                {roomStats?.leastUsed?.map((r, i) => (
-                  <li key={i}>{r.roomNumber} - {r.count} reservas</li>
-                ))}
-              </ul>
-            </div>
-            <div style={styles.card}>
-              <h3 style={styles.cardTitle}>Fuera de Servicio</h3>
-              <ul>
-                {roomStats?.outOfService?.map((r, i) => (
-                  <li key={i}>{r.roomNumber} - {r.daysOut} días ({r.reason})</li>
-                ))}
-              </ul>
+              <h2 style={styles.cardTitle}>Habitaciones</h2>
+              {roomReports && (
+                <ul>
+                  {roomReports.map((room) => (
+                    <li key={room._id}>
+                      {room._id}: {room.count}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </section>
@@ -207,12 +155,12 @@ const styles = {
   },
   contentGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: '1fr',
     gap: '32px',
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr 1fr',
+    gridTemplateColumns: '1fr',
     gap: '24px',
   },
   card: {

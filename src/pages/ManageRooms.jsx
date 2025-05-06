@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 import { Link } from 'react-router-dom';
 import './rooms.css';
 
@@ -24,10 +24,7 @@ function ManageRooms() {
   }, []);
 
   const fetchRooms = () => {
-    const token = localStorage.getItem('token');
-    axios.get('http://localhost:5173/api/rooms', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    axiosInstance.get('/rooms')
       .then(response => setRooms(response.data))
       .catch(error => console.error("Error al obtener habitaciones: ", error));
   };
@@ -39,57 +36,32 @@ function ManageRooms() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
 
-    if (isEditing) {
-      axios.put(`http://localhost:5173/api/rooms/${room._id}`, room, {
-        headers: { Authorization: `Bearer ${token}` },
+    const url = isEditing ? `/rooms/${room._id}` : '/rooms';
+    const method = isEditing ? axiosInstance.put : axiosInstance.post;
+
+    method(url, room)
+      .then(() => {
+        setMessage(isEditing ? 'Habitación actualizada' : 'Habitación creada');
+        setIsEditing(false);
+        setRoom({
+          number: '',
+          type: '',
+          description: '',
+          price: '',
+          status: 'disponible',
+          floor: '',
+          capacity: '',
+          amenities: [],
+          images: [],
+        });
+        fetchRooms();
       })
-        .then(() => {
-          setMessage('Habitación actualizada');
-          setIsEditing(false);
-          setRoom({
-            number: '',
-            type: '',
-            description: '',
-            price: '',
-            status: 'disponible',
-            floor: '',
-            capacity: '',
-            amenities: [],
-            images: [],
-          });
-          fetchRooms();
-        })
-        .catch(console.error);
-    } else {
-      axios.post('http://localhost:5173/api/rooms', room, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then(() => {
-          setMessage('Habitación creada');
-          setRoom({
-            number: '',
-            type: '',
-            description: '',
-            price: '',
-            status: 'disponible',
-            floor: '',
-            capacity: '',
-            amenities: [],
-            images: [],
-          });
-          fetchRooms();
-        })
-        .catch(console.error);
-    }
+      .catch(console.error);
   };
 
   const handleDelete = (id) => {
-    const token = localStorage.getItem('token');
-    axios.delete(`http://localhost:5173/api/rooms/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    axiosInstance.delete(`/rooms/${id}`)
       .then(() => {
         setRooms(rooms.filter(room => room._id !== id));
         setMessage('Habitación eliminada');

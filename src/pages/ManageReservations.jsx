@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 import { Link } from 'react-router-dom';
 import './reservations.css';
 
@@ -16,7 +16,7 @@ function ManageReservations() {
 
   const fetchReservations = async () => {
     try {
-      const res = await axios.get("http://localhost:2117/api/reservations");
+      const res = await axiosInstance.get('/reservations');
       setReservations(res.data);
     } catch (error) {
       console.error("Error al cargar reservas:", error);
@@ -62,7 +62,6 @@ function ManageReservations() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
 
     // Validación de fechas
     if (new Date(reservation.checkIn) >= new Date(reservation.checkOut)) {
@@ -82,18 +81,15 @@ function ManageReservations() {
       return;
     }
 
-    const url = isEditing
-      ? `http://localhost:2117/api/reservations/${reservation._id}`
-      : 'http://localhost:2117/api/reservations';
-    const method = isEditing ? axios.put : axios.post;
-
     try {
-      await method(url, reservation, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const url = isEditing ? `/reservations/${reservation._id}` : '/reservations';
+      const method = isEditing ? axiosInstance.put : axiosInstance.post;
+
+      await method(url, reservation);
       fetchReservations();
       setReservation(initialReservationState());
       setIsEditing(false);
+      alert('✅ Reserva guardada exitosamente.');
     } catch (err) {
       console.error('Error al guardar:', err);
       alert('❌ Error al guardar la reserva. Intenta nuevamente.');
@@ -109,13 +105,10 @@ function ManageReservations() {
   };
 
   const handleDelete = async (id) => {
-    const token = localStorage.getItem('token');
     if (!window.confirm("¿Estás seguro de eliminar esta reserva?")) return;
 
     try {
-      await axios.delete(`http://localhost:2117/api/reservations/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axiosInstance.delete(`/reservations/${id}`);
       fetchReservations();
     } catch (err) {
       console.error('Error al eliminar:', err);

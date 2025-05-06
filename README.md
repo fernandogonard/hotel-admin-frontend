@@ -1,12 +1,40 @@
-# React + Vite
+# Hotel Admin Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto es una aplicación web desarrollada con React y Vite para la gestión integral de un hotel. Permite a los administradores y recepcionistas gestionar habitaciones, reservas y visualizar informes de ocupación y disponibilidad.
 
-Currently, two official plugins are available:
+## Características principales
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Gestión de habitaciones:** Crear, editar, eliminar y listar habitaciones con detalles como número, tipo, precio, piso, capacidad y servicios.
+- **Gestión de reservas:** Registrar nuevas reservas, editar o cancelar reservas existentes, y evitar solapamientos de fechas para una misma habitación.
+- **Panel de administración:** Visualización de estadísticas clave como habitaciones ocupadas, disponibles y total de reservas.
+- **Informes:** Acceso a reportes generales, de reservas y de habitaciones por tipo.
+- **Autenticación y roles:** Acceso seguro mediante inicio de sesión, con roles diferenciados para administrador y recepcionista.
+- **Interfaz moderna:** Diseño responsivo y amigable, con navegación lateral y componentes visuales claros.
 
-## Expanding the ESLint configuration
+## Estructura del proyecto
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `src/pages`: Contiene las páginas principales como Dashboard, Gestión de Habitaciones, Reservas e Informes.
+- `src/components`: Componentes reutilizables como Sidebar y rutas privadas.
+- `src/utils`: Utilidades como la configuración de Axios para las peticiones HTTP.
+- `src/index.css`: Estilos globales del proyecto.
+
+## Instalación y ejecución
+
+1. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+2. Inicia el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
+3. Accede a la aplicación en [http://localhost:5173](http://localhost:5173).
+
+## Requisitos
+
+- Node.js
+- Backend corriendo en [hotel-admin-backend](../hotel-admin-backend)
+
+## Licencia
+
+MIT
