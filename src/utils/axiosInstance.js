@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:2117/api',
+  baseURL: '/api', // Usar proxy de Vite para evitar problemas de CORS y entorno
 });
 
 // Interceptor para agregar el token a cada request si existe

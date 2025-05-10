@@ -1,26 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../utils/axiosInstance';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Link } from 'react-router-dom';
-import { Bar } from 'react-chartjs-2';
 import RoomGrid from '../components/RoomGrid';
 import RoomTimeline from '../components/RoomTimeline';
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-const data = {
-  labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-  datasets: [
-    {
-      label: 'Ocupación de Habitaciones',
-      data: [30, 45, 40, 60, 75, 50],
-      backgroundColor: 'rgba(255, 102, 0, 0.4)', // Naranja suave
-      borderColor: '#FF6600',
-      borderWidth: 2,
-    },
-  ],
-};
-
-const DashboardChart = () => <Bar data={data} />;
 
 function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -79,18 +61,13 @@ function AdminDashboard() {
             </div>
           </div>
 
-          {/* Gráfico */}
-          <div style={styles.chartContainer}>
-            <h3 style={styles.chartTitle}>Ocupación Semestral</h3>
-            <DashboardChart />
+          <div>
+            <h1 style={{ textAlign: 'center', margin: '1rem 0' }}>Grilla de Ocupación de Habitaciones</h1>
+            <RoomGrid />
           </div>
           <div>
-      <h1 style={{ textAlign: 'center', margin: '1rem 0' }}>Grilla de Ocupación de Habitaciones</h1>
-      <RoomGrid />
-    </div>
-    <div>
-      <RoomTimeline />
-    </div>
+            <RoomTimeline />
+          </div>
         </section>
       </main>
     </div>
@@ -102,22 +79,25 @@ const styles = {
     display: 'flex',
     minHeight: '100vh',
     fontFamily: 'Arial, sans-serif',
-    backgroundColor: '#f5f5f5',
+    background: 'var(--color-bg)', // Usar fondo dark global
   },
   sidebar: {
     width: '240px',
-    backgroundColor: '#000',
+    background: 'var(--color-sidebar)',
     color: '#fff',
     padding: '32px 16px',
     display: 'flex',
     flexDirection: 'column',
     gap: '24px',
+    minHeight: '100vh',
+    boxShadow: '2px 0 16px 0 #e3eafc',
   },
   sidebarTitle: {
     fontSize: '24px',
     fontWeight: 'bold',
     marginBottom: '32px',
-    color: '#FF6600',
+    color: 'var(--color-accent)',
+    letterSpacing: '2px',
   },
   nav: {
     display: 'flex',
@@ -128,25 +108,31 @@ const styles = {
     color: '#fff',
     textDecoration: 'none',
     fontSize: '16px',
-    padding: '10px 14px',
-    borderRadius: '8px',
-    backgroundColor: '#1a1a1a',
-    transition: 'all 0.3s ease',
+    padding: '12px 18px',
+    borderRadius: '10px',
+    background: 'rgba(255,255,255,0.04)',
+    marginBottom: '6px',
+    fontWeight: 500,
+    letterSpacing: '1px',
+    transition: 'background 0.2s, color 0.2s',
   },
   main: {
     flex: 1,
     padding: '32px',
-    marginLeft: '240px', // 👈 Esto empuja el contenido para no quedar detrás del sidebar
+    marginLeft: '240px',
+    background: 'var(--color-bg)', // Fondo dark global
+    minHeight: '100vh',
   },
-  
   title: {
-    fontSize: '32px',
-    color: '#FF6600',
+    fontSize: '2.2rem',
+    color: 'var(--color-title)',
     marginBottom: '8px',
+    fontWeight: 700,
+    letterSpacing: '-1px',
   },
   subtitle: {
-    color: '#666',
-    fontSize: '16px',
+    color: 'var(--color-subtitle)',
+    fontSize: '1.1rem',
     marginBottom: '32px',
   },
   contentGrid: {
@@ -161,31 +147,23 @@ const styles = {
     gap: '24px',
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: '16px',
-    padding: '24px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+    background: 'var(--color-card)',
+    borderRadius: '18px',
+    padding: '2rem 1.5rem',
+    boxShadow: '0 4px 24px 0 #e3eafc',
+    border: '1px solid var(--color-border)',
+    marginBottom: '2rem',
   },
   cardTitle: {
-    color: '#555',
+    color: 'var(--color-title)',
     fontSize: '18px',
     marginBottom: '8px',
+    fontWeight: 600,
   },
   cardValue: {
     fontSize: '32px',
-    color: '#FF6600',
+    color: 'var(--color-accent)',
     fontWeight: 'bold',
-  },
-  chartContainer: {
-    backgroundColor: '#fff',
-    borderRadius: '16px',
-    padding: '24px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-  },
-  chartTitle: {
-    fontSize: '18px',
-    marginBottom: '16px',
-    color: '#333',
   },
 };
 

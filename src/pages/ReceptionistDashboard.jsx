@@ -23,79 +23,66 @@ function ReceptionistDashboard() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', display: 'flex' }}>
-      {/* Barra lateral */}
-      <div style={{ width: '16rem', backgroundColor: '#2b6cb0', color: 'white', padding: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>Dashboard Recepcionista</h2>
+    <div className="receptionist-dashboard" style={{ display: 'flex', minHeight: '100vh' }}>
+      <aside className="sidebar">
+        <h2>Dashboard Recepcionista</h2>
         <nav>
           <ul>
-            <li style={{ marginBottom: '1rem' }}>
-              <Link to="/reservas" style={{ fontSize: '1.125rem', color: '#cbd5e0', textDecoration: 'none' }}>Reservas</Link>
-            </li>
-            <li style={{ marginBottom: '1rem' }}>
-              <Link to="/habitaciones" style={{ fontSize: '1.125rem', color: '#cbd5e0', textDecoration: 'none' }}>Habitaciones</Link>
-            </li>
-            <li style={{ marginBottom: '1rem' }}>
-              <Link to="/clientes" style={{ fontSize: '1.125rem', color: '#cbd5e0', textDecoration: 'none' }}>Clientes</Link>
-            </li>
+            <li><Link to="/reservas">Reservas</Link></li>
+            <li><Link to="/habitaciones">Habitaciones</Link></li>
+            <li><Link to="/clientes">Clientes</Link></li>
           </ul>
         </nav>
-      </div>
-
-      {/* Panel principal */}
-      <div style={{ flex: 1, padding: '2.5rem' }}>
-        <div style={{ backgroundColor: 'white', boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '60rem', margin: '0 auto' }}>
-          <h1 style={{ fontSize: '2.25rem', fontWeight: 'bold', color: '#3182ce', marginBottom: '1rem' }}>Panel de Recepcionista</h1>
-          <p style={{ color: '#4a5568', marginBottom: '1.5rem' }}>
+      </aside>
+      <main style={{ flex: 1, padding: '2.5rem', marginLeft: '240px' }}>
+        <div className="card" style={{ maxWidth: '60rem', margin: '0 auto' }}>
+          <h1 style={{ textAlign: 'center' }}>Panel de Recepcionista</h1>
+          <p style={{ color: 'var(--color-subtitle)', marginBottom: '1.5rem', textAlign: 'center' }}>
             Aquí podrás gestionar las reservas y el estado de las habitaciones.
           </p>
-
           {/* Barra de búsqueda */}
-          <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '0.5rem' }}>
-            <HiOutlineSearch style={{ color: '#a0aec0', marginRight: '0.5rem' }} />
+          <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', border: '1px solid var(--color-border)', borderRadius: '0.75rem', padding: '0.5rem', background: 'var(--color-bg-light)' }}>
+            <HiOutlineSearch style={{ color: 'var(--color-subtitle)', marginRight: '0.5rem' }} />
             <input
               type="text"
               placeholder="Buscar reserva o cliente"
-              style={{ width: '100%', border: 'none', padding: '0.5rem', outline: 'none' }}
+              style={{ width: '100%', border: 'none', padding: '0.5rem', outline: 'none', background: 'transparent', color: 'var(--color-title)' }}
             />
           </div>
-
           {/* Gráfico de ocupación */}
           <div style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#4a5568', marginBottom: '1rem' }}>Ocupación de Habitaciones</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Ocupación de Habitaciones</h2>
             <Bar data={data} options={{ responsive: true }} />
           </div>
-
           {/* Lista de habitaciones */}
           <div style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#4a5568', marginBottom: '1rem' }}>Estado de las Habitaciones</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Estado de las Habitaciones</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-              <div style={{ padding: '1rem', backgroundColor: '#c6f6d5', borderRadius: '1rem', textAlign: 'center' }}>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Habitación 101</h3>
-                <p style={{ fontSize: '0.875rem', color: '#4a5568' }}>Disponible</p>
+              <div className="card" style={{ textAlign: 'center', background: '#22c55e', color: '#fff' }}>
+                <h3>Habitación 101</h3>
+                <p>Disponible</p>
               </div>
-              <div style={{ padding: '1rem', backgroundColor: '#faf089', borderRadius: '1rem', textAlign: 'center' }}>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Habitación 102</h3>
-                <p style={{ fontSize: '0.875rem', color: '#4a5568' }}>Ocupada</p>
+              <div className="card" style={{ textAlign: 'center', background: '#ff7f50', color: '#fff' }}>
+                <h3>Habitación 102</h3>
+                <p>Ocupada</p>
               </div>
-              <div style={{ padding: '1rem', backgroundColor: '#fed7d7', borderRadius: '1rem', textAlign: 'center' }}>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Habitación 103</h3>
-                <p style={{ fontSize: '0.875rem', color: '#4a5568' }}>Fuera de servicio</p>
+              <div className="card" style={{ textAlign: 'center', background: '#6b7280', color: '#fff' }}>
+                <h3>Habitación 103</h3>
+                <p>Fuera de servicio</p>
               </div>
             </div>
           </div>
-
           {/* Acción rápida */}
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button style={{ width: '50%', backgroundColor: '#2b6cb0', color: 'white', fontWeight: '600', padding: '0.75rem', borderRadius: '1rem', transition: 'background-color 0.3s', cursor: 'pointer' }}>
+            <button className="btn" style={{ width: '50%' }}>
               Crear Reserva
             </button>
-            <button style={{ width: '50%', backgroundColor: '#48bb78', color: 'white', fontWeight: '600', padding: '0.75rem', borderRadius: '1rem', transition: 'background-color 0.3s', cursor: 'pointer' }}>
+            <button className="btn" style={{ width: '50%', background: '#48bb78' }}>
               Gestionar Habitaciones
             </button>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

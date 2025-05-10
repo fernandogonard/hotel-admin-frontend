@@ -53,9 +53,8 @@ function ManageGuests() {
       });
       setIsEditing(false);
       fetchGuests();
-    } catch (err) {
-      console.error('Error al guardar:', err);
-      alert(err.response?.data?.message || '❌ Error al guardar la reserva. Intenta nuevamente.');
+    } catch {
+      alert('❌ Error al guardar la reserva. Intenta nuevamente.');
     }
   };
 
@@ -76,196 +75,74 @@ function ManageGuests() {
   };
 
   return (
-    <div style={styles.container}>
+    <div className="guests-page">
       {/* Sidebar */}
-      <aside style={styles.sidebar}>
-        <h2 style={styles.sidebarTitle}>Admin Hotel</h2>
-        <nav style={styles.nav}>
-          <Link to="/admin-dashboard" style={styles.link}>Dashboard</Link>
-          <Link to="/manage-rooms" style={styles.link}>Habitaciones</Link>
-          <Link to="/manage-reservations" style={styles.link}>Reservas</Link>
-          <Link to="/manage-guests" style={styles.link}>Clientes</Link>
-          <Link to="/reports" style={styles.link}>Informes</Link>
+      <aside className="sidebar">
+        <h2>Admin Hotel</h2>
+        <nav>
+          <Link to="/admin-dashboard">Dashboard</Link>
+          <Link to="/manage-rooms">Habitaciones</Link>
+          <Link to="/manage-reservations">Reservas</Link>
+          <Link to="/manage-guests">Clientes</Link>
+          <Link to="/reports">Informes</Link>
         </nav>
       </aside>
-
       {/* Main */}
-      <main style={styles.main}>
+      <main style={{ flex: 1, padding: '32px', marginLeft: '240px' }}>
         <h1>Gestión de Huéspedes</h1>
-        {message && <div style={styles.message}>{message}</div>}
+        {message && <div className="status-tag status-reservado">{message}</div>}
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
           {/* Formulario */}
-          <form onSubmit={handleSubmit} style={styles.form}>
+          <form onSubmit={handleSubmit} className="card" style={{ minWidth: 300, maxWidth: 350 }}>
             <h2>{isEditing ? 'Editar' : 'Nuevo'} Huésped</h2>
-            <input name="firstName" placeholder="Nombre" value={guest.firstName} onChange={handleInputChange} required style={styles.input} />
-            <input name="lastName" placeholder="Apellido" value={guest.lastName} onChange={handleInputChange} required style={styles.input} />
-            <input name="email" placeholder="Email" value={guest.email} onChange={handleInputChange} required style={styles.input} />
-            <input name="phone" placeholder="Teléfono" value={guest.phone} onChange={handleInputChange} style={styles.input} />
-            <input name="preferences" placeholder="Preferencias" value={guest.preferences} onChange={handleInputChange} style={styles.input} />
-            <textarea name="notes" placeholder="Notas" value={guest.notes} onChange={handleInputChange} style={styles.input} />
-            <button type="submit" style={styles.btnNaranja}>{isEditing ? 'Actualizar' : 'Crear'}</button>
-            {isEditing && (
-              <button type="button" style={styles.btnCancelar} onClick={() => { setIsEditing(false); setGuest({ firstName: '', lastName: '', email: '', phone: '', notes: '', preferences: '' }); }}>Cancelar</button>
-            )}
+            <label htmlFor="firstName">Nombre</label>
+            <input name="firstName" placeholder="Nombre" value={guest.firstName} onChange={handleInputChange} required />
+            <label htmlFor="lastName">Apellido</label>
+            <input name="lastName" placeholder="Apellido" value={guest.lastName} onChange={handleInputChange} required />
+            <label htmlFor="email">Email</label>
+            <input name="email" placeholder="Email" value={guest.email} onChange={handleInputChange} required />
+            <label htmlFor="phone">Teléfono</label>
+            <input name="phone" placeholder="Teléfono" value={guest.phone} onChange={handleInputChange} />
+            <label htmlFor="notes">Notas</label>
+            <textarea name="notes" placeholder="Notas" value={guest.notes} onChange={handleInputChange} />
+            <label htmlFor="preferences">Preferencias</label>
+            <input name="preferences" placeholder="Preferencias" value={guest.preferences} onChange={handleInputChange} />
+            <button type="submit" className="btn" style={{ marginTop: 12 }}>{isEditing ? 'Actualizar' : 'Crear'}</button>
+            {isEditing && <button type="button" className="btn btn-rojo" style={{ marginTop: 8 }} onClick={() => { setIsEditing(false); setGuest({ firstName: '', lastName: '', email: '', phone: '', notes: '', preferences: '' }); }}>Cancelar</button>}
           </form>
-          {/* Tabla */}
-          <div style={{ flex: 1 }}>
+          {/* Tabla de huéspedes */}
+          <div className="card" style={{ flex: 1, minWidth: 320 }}>
             <h2>Lista de Huéspedes</h2>
-            <div style={styles.tableContainer}>
-              <table style={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
-                    <th>Preferencias</th>
-                    <th>Notas</th>
-                    <th>Acciones</th>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Apellido</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {guests.map((g) => (
+                  <tr key={g._id}>
+                    <td>{g.firstName}</td>
+                    <td>{g.lastName}</td>
+                    <td>{g.email}</td>
+                    <td>{g.phone}</td>
+                    <td>
+                      <button className="btn btn-amarillo" onClick={() => handleEdit(g)}>Editar</button>
+                      <button className="btn btn-rojo" onClick={() => handleDelete(g._id)}>Eliminar</button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {guests.map(g => (
-                    <tr key={g._id}>
-                      <td>{g.firstName} {g.lastName}</td>
-                      <td>{g.email}</td>
-                      <td>{g.phone}</td>
-                      <td>{g.preferences}</td>
-                      <td>{g.notes}</td>
-                      <td>
-                        <button style={styles.btnAmarillo} onClick={() => handleEdit(g)}>Editar</button>
-                        <button style={styles.btnRojo} onClick={() => handleDelete(g._id)}>Eliminar</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </main>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex',
-    minHeight: '100vh',
-    fontFamily: 'Arial, sans-serif',
-    backgroundColor: '#f5f5f5',
-  },
-  sidebar: {
-    width: '240px',
-    backgroundColor: '#000',
-    color: '#fff',
-    padding: '32px 16px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px',
-  },
-  sidebarTitle: {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    marginBottom: '32px',
-    color: '#FF6600',
-  },
-  nav: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-  },
-  link: {
-    color: '#fff',
-    textDecoration: 'none',
-    fontSize: '16px',
-    padding: '10px 14px',
-    borderRadius: '8px',
-    backgroundColor: '#1a1a1a',
-    transition: 'all 0.3s ease',
-  },
-  main: {
-    flex: 1,
-    padding: '32px',
-    marginLeft: '240px',
-  },
-  form: {
-    background: '#fff',
-    padding: '1.5rem',
-    borderRadius: '12px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-    minWidth: '300px',
-    maxWidth: '350px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-  },
-  input: {
-    padding: '0.5rem',
-    borderRadius: '8px',
-    border: '1px solid #ccc',
-    marginBottom: '8px',
-    fontSize: '15px',
-  },
-  btnNaranja: {
-    backgroundColor: '#f97316',
-    color: '#fff',
-    padding: '8px 16px',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    marginTop: '1rem',
-    fontWeight: 'bold',
-  },
-  btnCancelar: {
-    backgroundColor: '#9ca3af',
-    color: '#fff',
-    padding: '8px 16px',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    marginTop: '0.5rem',
-    fontWeight: 'bold',
-  },
-  tableContainer: {
-    overflowX: 'auto',
-    backgroundColor: '#fff',
-    borderRadius: '12px',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-    marginTop: '20px',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    fontSize: '15px',
-    color: '#1a1a1a',
-  },
-  btnAmarillo: {
-    backgroundColor: '#FFB100',
-    color: '#000',
-    padding: '6px 12px',
-    marginRight: '8px',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-  },
-  btnRojo: {
-    backgroundColor: '#cc0000',
-    color: '#fff',
-    padding: '6px 12px',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-  },
-  message: {
-    background: '#facc15',
-    color: '#000',
-    padding: '10px',
-    borderRadius: '8px',
-    marginBottom: '1rem',
-    fontWeight: 'bold',
-  },
-};
 
 export default ManageGuests;

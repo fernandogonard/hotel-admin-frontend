@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { Link } from 'react-router-dom';
-import './reservations.css';
 
 function ManageReservations() {
   const [reservations, setReservations] = useState([]);
@@ -164,118 +163,75 @@ function ManageReservations() {
     }
   };
 
-  const styles = {
-    container: { display: 'flex', minHeight: '100vh', fontFamily: 'Arial, sans-serif', backgroundColor: '#f5f5f5' },
-    sidebar: { width: '240px', backgroundColor: '#000', color: '#fff', padding: '32px 16px', display: 'flex', flexDirection: 'column', gap: '24px' },
-    sidebarTitle: { fontSize: '24px', fontWeight: 'bold', marginBottom: '32px', color: '#FF6600' },
-    nav: { display: 'flex', flexDirection: 'column', gap: '16px' },
-    link: { color: '#fff', textDecoration: 'none', fontSize: '16px', padding: '10px 14px', borderRadius: '8px', backgroundColor: '#1a1a1a', transition: '0.3s' },
-    main: { flex: 1, padding: '32px', marginLeft: '240px' },
-    title: { fontSize: '32px', color: '#FF6600', marginBottom: '8px' },
-    subtitle: { color: '#666', fontSize: '16px', marginBottom: '32px' },
-    reservationForm: { display: 'flex', flexDirection: 'column', gap: '16px' },
-    input: { padding: '10px', fontSize: '16px', border: '1px solid #ddd', borderRadius: '8px' },
-    filters: { marginTop: '20px', display: 'flex', gap: '16px' },
-    table: { width: '100%', marginTop: '32px', borderCollapse: 'collapse' },
-    tableHeader: { backgroundColor: '#000', color: '#fff', padding: '10px' },
-    tableRow: { borderBottom: '1px solid #ddd' },
-    tableCell: { padding: '10px' },
-    actionsButton: { backgroundColor: '#FF6600', color: '#fff', padding: '6px 12px', border: 'none', borderRadius: '8px', cursor: 'pointer', marginRight: '8px' },
-    btnDelete: { backgroundColor: '#ff4c4c' },
-  };
-
   return (
-    <div style={styles.container}>
-      <aside style={styles.sidebar}>
-        <h2 style={styles.sidebarTitle}>Admin Hotel</h2>
-        <nav style={styles.nav}>
-          <Link to="/admin-dashboard" style={styles.link}>Dashboard</Link>
-          <Link to="/manage-rooms" style={styles.link}>Habitaciones</Link>
-          <Link to="/manage-reservations" style={styles.link}>Reservas</Link>
-          <Link to="/manage-guests" style={styles.link}>Clientes</Link>
-          <Link to="/reports" style={styles.link}>Informes</Link>
+    <div className="rooms-page">
+      <aside className="sidebar">
+        <h2>Admin Hotel</h2>
+        <nav>
+          <Link to="/admin-dashboard" className="sidebar-link">Dashboard</Link>
+          <Link to="/manage-rooms" className="sidebar-link">Habitaciones</Link>
+          <Link to="/manage-reservations" className="sidebar-link">Reservas</Link>
+          <Link to="/manage-guests" className="sidebar-link">Clientes</Link>
+          <Link to="/reports" className="sidebar-link">Informes</Link>
         </nav>
       </aside>
-
-      <main style={styles.main}>
-        <h1 style={styles.title}>Gestión de Reservas</h1>
-
-        <form onSubmit={handleSubmit} style={styles.reservationForm} ref={formRef}>
-          <input style={styles.input} type="text" name="firstName" placeholder="Nombre" value={reservation.firstName} onChange={handleInputChange} required />
-          <input style={styles.input} type="text" name="lastName" placeholder="Apellido" value={reservation.lastName} onChange={handleInputChange} required />
-          <input style={styles.input} type="tel" name="phone" placeholder="Teléfono" value={reservation.phone} onChange={handleInputChange} required />
-          <input style={styles.input} type="email" name="email" placeholder="Correo electrónico" value={reservation.email} onChange={handleInputChange} required />
-          <input style={styles.input} type="date" name="checkIn" value={reservation.checkIn} onChange={handleInputChange} required />
-          <input style={styles.input} type="date" name="checkOut" value={reservation.checkOut} onChange={handleInputChange} required />
-          <input style={styles.input} type="text" name="roomNumber" placeholder="Habitación" value={reservation.roomNumber} onChange={handleInputChange} required />
-          <input
-            style={styles.input}
-            type="number"
-            name="guests"
-            placeholder="Nº Huéspedes"
-            value={reservation.guests}
-            onChange={handleInputChange}
-            required
-            min={1}
-          />
-          <textarea style={styles.input} name="notes" placeholder="Notas" value={reservation.notes} onChange={handleInputChange}></textarea>
-          <button style={styles.actionsButton} type="submit">{isEditing ? 'Actualizar' : 'Crear'} Reserva</button>
+      <main>
+        <h1>Gestión de Reservas</h1>
+        <form onSubmit={handleSubmit} className="card" ref={formRef} style={{ maxWidth: 600, margin: '0 auto' }}>
+          <input className="input" type="text" name="firstName" placeholder="Nombre" value={reservation.firstName} onChange={handleInputChange} required />
+          <input className="input" type="text" name="lastName" placeholder="Apellido" value={reservation.lastName} onChange={handleInputChange} required />
+          <input className="input" type="tel" name="phone" placeholder="Teléfono" value={reservation.phone} onChange={handleInputChange} required />
+          <input className="input" type="email" name="email" placeholder="Correo electrónico" value={reservation.email} onChange={handleInputChange} required />
+          <input className="input" type="date" name="checkIn" value={reservation.checkIn} onChange={handleInputChange} required />
+          <input className="input" type="date" name="checkOut" value={reservation.checkOut} onChange={handleInputChange} required />
+          <input className="input" type="text" name="roomNumber" placeholder="Habitación" value={reservation.roomNumber} onChange={handleInputChange} required />
+          <input className="input" type="number" name="guests" placeholder="Nº Huéspedes" value={reservation.guests} onChange={handleInputChange} required min={1} />
+          <textarea className="input" name="notes" placeholder="Notas" value={reservation.notes} onChange={handleInputChange}></textarea>
+          <button className="btn" type="submit" style={{ marginTop: 8 }}>{isEditing ? 'Actualizar' : 'Crear'} Reserva</button>
         </form>
-
-        <div style={styles.filters}>
-          <input style={styles.input} type="text" name="name" placeholder="Buscar por nombre o apellido" value={filters.name} onChange={handleFilterChange} />
-          <input style={styles.input} type="date" name="date" value={filters.date} onChange={handleFilterChange} />
+        <div style={{ margin: '2rem 0', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <input className="input" style={{ minWidth: 220 }} type="text" name="name" placeholder="Buscar por nombre o apellido" value={filters.name} onChange={handleFilterChange} />
+          <input className="input" style={{ minWidth: 180 }} type="date" name="date" value={filters.date} onChange={handleFilterChange} />
         </div>
-
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.tableHeader}>Nombre</th>
-              <th style={styles.tableHeader}>Teléfono</th>
-              <th style={styles.tableHeader}>Email</th>
-              <th style={styles.tableHeader}>Check-In</th>
-              <th style={styles.tableHeader}>Check-Out</th>
-              <th style={styles.tableHeader}>Habitación</th>
-              <th style={styles.tableHeader}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredReservations.map((res) => (
-              <tr key={res._id} style={styles.tableRow}>
-                <td style={styles.tableCell}>{res.firstName} {res.lastName}</td>
-                <td style={styles.tableCell}>{res.phone}</td>
-                <td style={styles.tableCell}>{res.email}</td>
-                <td style={styles.tableCell}>{res.checkIn}</td>
-                <td style={styles.tableCell}>{res.checkOut}</td>
-                <td style={styles.tableCell}>{res.roomNumber}</td>
-                <td style={styles.tableCell}>
-                  <button style={styles.actionsButton} onClick={() => handleEdit(res)}>Editar</button>
-                  <button style={{ ...styles.actionsButton, ...styles.btnDelete }} onClick={() => handleDelete(res._id)}>Eliminar</button>
-                  {/* Botón de Check-in */}
-                  {res.status === 'reservado' &&
-                    new Date(res.checkIn).toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
-                      <button
-                        style={{ ...styles.actionsButton, backgroundColor: '#28a745' }}
-                        onClick={() => handleCheckIn(res._id)}
-                      >
-                        Check-in
-                      </button>
-                    )}
-                  {/* Botón de Check-out */}
-                  {res.status === 'ocupado' &&
-                    new Date(res.checkOut).toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
-                      <button
-                        style={{ ...styles.actionsButton, backgroundColor: '#007bff' }}
-                        onClick={() => handleCheckOut(res._id)}
-                      >
-                        Check-out
-                      </button>
-                    )}
-                </td>
+        <div className="card" style={{ overflowX: 'auto' }}>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Check-In</th>
+                <th>Check-Out</th>
+                <th>Habitación</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredReservations.map((res) => (
+                <tr key={res._id}>
+                  <td>{res.firstName} {res.lastName}</td>
+                  <td>{res.phone}</td>
+                  <td>{res.email}</td>
+                  <td>{res.checkIn}</td>
+                  <td>{res.checkOut}</td>
+                  <td>{res.roomNumber}</td>
+                  <td>
+                    <button className="btn btn-amarillo" onClick={() => handleEdit(res)} style={{ marginRight: 6 }}>Editar</button>
+                    <button className="btn btn-rojo" onClick={() => handleDelete(res._id)} style={{ marginRight: 6 }}>Eliminar</button>
+                    {res.status === 'reservado' &&
+                      new Date(res.checkIn).toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
+                        <button className="btn btn-azul" onClick={() => handleCheckIn(res._id)} style={{ marginRight: 6 }}>Check-in</button>
+                      )}
+                    {res.status === 'ocupado' &&
+                      new Date(res.checkOut).toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
+                        <button className="btn btn-azul" onClick={() => handleCheckOut(res._id)}>Check-out</button>
+                      )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </main>
     </div>
   );
