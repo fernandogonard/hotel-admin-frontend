@@ -32,14 +32,16 @@ function ManageReservations() {
       checkIn: '',
       checkOut: '',
       roomNumber: '',
-      guests: '',
+      guests: 1,
       notes: '',
     };
   }
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setReservation({ ...reservation, [name]: value });
+    setReservation({
+      ...reservation,
+      [name]: name === "guests" ? Number(value) : value
+    });
   };
 
   const handleFilterChange = (e) => {
@@ -81,11 +83,24 @@ function ManageReservations() {
       return;
     }
 
+    // Asegurar que guests sea número y todos los campos requeridos estén presentes
+    const data = {
+      ...reservation,
+      guests: Number(reservation.guests) || 1,
+      firstName: reservation.firstName || '',
+      lastName: reservation.lastName || '',
+      phone: reservation.phone || '',
+      email: reservation.email || '',
+      checkIn: reservation.checkIn || '',
+      checkOut: reservation.checkOut || '',
+      roomNumber: reservation.roomNumber || '',
+    };
+
     try {
       const url = isEditing ? `/reservations/${reservation._id}` : '/reservations';
       const method = isEditing ? axiosInstance.put : axiosInstance.post;
 
-      await method(url, reservation);
+      await method(url, data);
       fetchReservations();
       setReservation(initialReservationState());
       setIsEditing(false);
@@ -97,7 +112,18 @@ function ManageReservations() {
   };
 
   const handleEdit = (res) => {
-    setReservation(res);
+    setReservation({
+      firstName: res.firstName || '',
+      lastName: res.lastName || '',
+      phone: res.phone || '',
+      email: res.email || '',
+      checkIn: res.checkIn ? res.checkIn.slice(0, 10) : '',
+      checkOut: res.checkOut ? res.checkOut.slice(0, 10) : '',
+      roomNumber: res.roomNumber || '',
+      guests: typeof res.guests === 'number' ? res.guests : Number(res.guests) || 1,
+      notes: res.notes || '',
+      _id: res._id
+    });
     setIsEditing(true);
     setTimeout(() => {
       formRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -113,6 +139,28 @@ function ManageReservations() {
     } catch (err) {
       console.error('Error al eliminar:', err);
       alert('❌ Error al eliminar la reserva.');
+    }
+  };
+
+  const handleCheckIn = async (id) => {
+    if (!window.confirm('¿Confirmar check-in de esta reserva?')) return;
+    try {
+      await axiosInstance.post(`/reservations/${id}/checkin`);
+      fetchReservations();
+      alert('✅ Check-in realizado correctamente.');
+    } catch (err) {
+      alert('❌ Error al realizar check-in: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleCheckOut = async (id) => {
+    if (!window.confirm('¿Confirmar check-out de esta reserva?')) return;
+    try {
+      await axiosInstance.post(`/reservations/${id}/checkout`);
+      fetchReservations();
+      alert('✅ Check-out realizado correctamente.');
+    } catch (err) {
+      alert('❌ Error al realizar check-out: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -144,6 +192,7 @@ function ManageReservations() {
           <Link to="/admin-dashboard" style={styles.link}>Dashboard</Link>
           <Link to="/manage-rooms" style={styles.link}>Habitaciones</Link>
           <Link to="/manage-reservations" style={styles.link}>Reservas</Link>
+          <Link to="/manage-guests" style={styles.link}>Clientes</Link>
           <Link to="/reports" style={styles.link}>Informes</Link>
         </nav>
       </aside>
@@ -154,12 +203,21 @@ function ManageReservations() {
         <form onSubmit={handleSubmit} style={styles.reservationForm} ref={formRef}>
           <input style={styles.input} type="text" name="firstName" placeholder="Nombre" value={reservation.firstName} onChange={handleInputChange} required />
           <input style={styles.input} type="text" name="lastName" placeholder="Apellido" value={reservation.lastName} onChange={handleInputChange} required />
-          <input style={styles.input} type="tel" name="phone" placeholder="Teléfono" value={reservation.phone} onChange={handleInputChange} />
-          <input style={styles.input} type="email" name="email" placeholder="Correo electrónico" value={reservation.email} onChange={handleInputChange} />
+          <input style={styles.input} type="tel" name="phone" placeholder="Teléfono" value={reservation.phone} onChange={handleInputChange} required />
+          <input style={styles.input} type="email" name="email" placeholder="Correo electrónico" value={reservation.email} onChange={handleInputChange} required />
           <input style={styles.input} type="date" name="checkIn" value={reservation.checkIn} onChange={handleInputChange} required />
           <input style={styles.input} type="date" name="checkOut" value={reservation.checkOut} onChange={handleInputChange} required />
           <input style={styles.input} type="text" name="roomNumber" placeholder="Habitación" value={reservation.roomNumber} onChange={handleInputChange} required />
-          <input style={styles.input} type="number" name="guests" placeholder="Nº Huéspedes" value={reservation.guests} onChange={handleInputChange} />
+          <input
+            style={styles.input}
+            type="number"
+            name="guests"
+            placeholder="Nº Huéspedes"
+            value={reservation.guests}
+            onChange={handleInputChange}
+            required
+            min={1}
+          />
           <textarea style={styles.input} name="notes" placeholder="Notas" value={reservation.notes} onChange={handleInputChange}></textarea>
           <button style={styles.actionsButton} type="submit">{isEditing ? 'Actualizar' : 'Crear'} Reserva</button>
         </form>
@@ -193,6 +251,26 @@ function ManageReservations() {
                 <td style={styles.tableCell}>
                   <button style={styles.actionsButton} onClick={() => handleEdit(res)}>Editar</button>
                   <button style={{ ...styles.actionsButton, ...styles.btnDelete }} onClick={() => handleDelete(res._id)}>Eliminar</button>
+                  {/* Botón de Check-in */}
+                  {res.status === 'reservado' &&
+                    new Date(res.checkIn).toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
+                      <button
+                        style={{ ...styles.actionsButton, backgroundColor: '#28a745' }}
+                        onClick={() => handleCheckIn(res._id)}
+                      >
+                        Check-in
+                      </button>
+                    )}
+                  {/* Botón de Check-out */}
+                  {res.status === 'ocupado' &&
+                    new Date(res.checkOut).toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
+                      <button
+                        style={{ ...styles.actionsButton, backgroundColor: '#007bff' }}
+                        onClick={() => handleCheckOut(res._id)}
+                      >
+                        Check-out
+                      </button>
+                    )}
                 </td>
               </tr>
             ))}

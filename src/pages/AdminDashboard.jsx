@@ -3,7 +3,8 @@ import axiosInstance from '../utils/axiosInstance';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Link } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
-
+import RoomGrid from '../components/RoomGrid';
+import RoomTimeline from '../components/RoomTimeline';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const data = {
@@ -83,6 +84,13 @@ function AdminDashboard() {
             <h3 style={styles.chartTitle}>Ocupación Semestral</h3>
             <DashboardChart />
           </div>
+          <div>
+      <h1 style={{ textAlign: 'center', margin: '1rem 0' }}>Grilla de Ocupación de Habitaciones</h1>
+      <RoomGrid />
+    </div>
+    <div>
+      <RoomTimeline />
+    </div>
         </section>
       </main>
     </div>

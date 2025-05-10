@@ -86,6 +86,7 @@ function ManageRooms() {
           <Link to="/admin-dashboard" style={styles.link}>Dashboard</Link>
           <Link to="/manage-rooms" style={styles.link}>Habitaciones</Link>
           <Link to="/manage-reservations" style={styles.link}>Reservas</Link>
+          <Link to="/manage-guests" style={styles.link}>Clientes</Link>
           <Link to="/reports" style={styles.link}>Informes</Link>
         </nav>
       </aside>
@@ -147,16 +148,19 @@ function ManageRooms() {
         </tr>
       </thead>
       <tbody>
-        {rooms.map((room) => (
-          <tr key={room._id} style={styles.tr}>
-            <td style={styles.td}>{room.number}</td>
-            <td style={styles.td}>{room.type}</td>
-            <td style={styles.td}>${room.price}</td>
-            <td style={styles.td}>
-              <button style={styles.btnAmarillo} onClick={() => handleEdit(room)}>Editar</button>
-              <button style={styles.btnRojo} onClick={() => handleDelete(room._id)}>Eliminar</button>
-            </td>
-          </tr>
+        {rooms
+          .slice()
+          .sort((a, b) => Number(a.number) - Number(b.number))
+          .map((room) => (
+            <tr key={room._id} style={styles.tr}>
+              <td style={styles.td}>{room.number}</td>
+              <td style={styles.td}>{room.type}</td>
+              <td style={styles.td}>${room.price}</td>
+              <td style={styles.td}>
+                <button style={styles.btnAmarillo} onClick={() => handleEdit(room)}>Editar</button>
+                <button style={styles.btnRojo} onClick={() => handleDelete(room._id)}>Eliminar</button>
+              </td>
+            </tr>
         ))}
       </tbody>
     </table>

@@ -42,6 +42,7 @@ const Sidebar = () => {
         <Link to="/admin-dashboard" style={styles.link}>Dashboard</Link>
         <Link to="/manage-rooms" style={styles.link}>Habitaciones</Link>
         <Link to="/manage-reservations" style={styles.link}>Reservas</Link>
+        <Link to="/manage-guests" style={styles.link}>Clientes</Link>
         <Link to="/reports" style={styles.link}>Informes</Link>
       </nav>
     </aside>

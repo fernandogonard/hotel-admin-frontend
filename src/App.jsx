@@ -7,6 +7,7 @@ import ReceptionistDashboard from './pages/ReceptionistDashboard';
 import ManageRooms from './pages/ManageRooms';
 import ManageReservations from './pages/ManageReservations';
 import Reports from './pages/Reports';
+import ManageGuests from './pages/ManageGuests';
 
 function App() {
   return (
@@ -49,6 +50,14 @@ function App() {
         element={
           <PrivateRoute>
             <Reports />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/manage-guests"
+        element={
+          <PrivateRoute>
+            <ManageGuests />
           </PrivateRoute>
         }
       />
