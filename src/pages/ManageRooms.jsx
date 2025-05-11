@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { Link } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
+import styles from '../assets/ManageRooms.module.css';
+import { toast } from 'react-toastify';
+import ModalConfirm from '../components/ModalConfirm';
 
 function ManageRooms() {
   const [rooms, setRooms] = useState([]);
@@ -16,7 +20,7 @@ function ManageRooms() {
     images: [],
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [message, setMessage] = useState('');
+  const [modal, setModal] = useState({ open: false, title: '', message: '', onConfirm: null });
 
   useEffect(() => {
     fetchRooms();
@@ -41,7 +45,7 @@ function ManageRooms() {
 
     method(url, room)
       .then(() => {
-        setMessage(isEditing ? 'Habitación actualizada' : 'Habitación creada');
+        toast.success(isEditing ? 'Habitación actualizada' : 'Habitación creada');
         setIsEditing(false);
         setRoom({
           number: '',
@@ -56,16 +60,29 @@ function ManageRooms() {
         });
         fetchRooms();
       })
-      .catch(console.error);
+      .catch((err) => {
+        toast.error('Error al guardar la habitación');
+        console.error(err);
+      });
   };
 
   const handleDelete = (id) => {
-    axiosInstance.delete(`/rooms/${id}`)
-      .then(() => {
-        setRooms(rooms.filter(room => room._id !== id));
-        setMessage('Habitación eliminada');
-      })
-      .catch(console.error);
+    setModal({
+      open: true,
+      title: 'Eliminar habitación',
+      message: '¿Estás seguro de eliminar esta habitación? Esta acción no se puede deshacer.',
+      onConfirm: async () => {
+        setModal(m => ({ ...m, open: false }));
+        try {
+          await axiosInstance.delete(`/rooms/${id}`);
+          setRooms(rooms.filter(room => room._id !== id));
+          toast.success('Habitación eliminada');
+        } catch (err) {
+          toast.error('Error al eliminar la habitación');
+          console.error(err);
+        }
+      }
+    });
   };
 
   const handleEdit = (roomToEdit) => {
@@ -77,25 +94,15 @@ function ManageRooms() {
   };
 
   return (
-    <div className="rooms-page">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <h2>Admin Hotel</h2>
-        <nav>
-          <Link to="/admin-dashboard">Dashboard</Link>
-          <Link to="/manage-rooms">Habitaciones</Link>
-          <Link to="/manage-reservations">Reservas</Link>
-          <Link to="/manage-guests">Clientes</Link>
-          <Link to="/reports">Informes</Link>
-        </nav>
-      </aside>
-      {/* Main */}
-      <main style={{ flex: 1, padding: '32px', marginLeft: '240px' }}>
-        <h1>Gestión de Habitaciones</h1>
-        {message && <div className="status-tag status-reservado">{message}</div>}
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+    <div className={styles.layout}>
+      <Sidebar />
+      <main className={styles.main}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Gestión de Habitaciones</h1>
+        </header>
+        <div className={styles.content}>
           {/* Formulario */}
-          <form onSubmit={handleSubmit} className="card" style={{ minWidth: 300, maxWidth: 350 }}>
+          <form onSubmit={handleSubmit} className={`card ${styles.form}`}>
             <h2>{isEditing ? 'Editar' : 'Nueva'} Habitación</h2>
             <label htmlFor="number">Número</label>
             <input name="number" placeholder="Número" value={room.number} onChange={handleInputChange} required />
@@ -122,7 +129,7 @@ function ManageRooms() {
             {isEditing && <button type="button" className="btn btn-rojo" style={{ marginTop: 8 }} onClick={() => { setIsEditing(false); setRoom({ number: '', type: '', description: '', price: '', status: 'disponible', floor: '', capacity: '', amenities: [], images: [] }); }}>Cancelar</button>}
           </form>
           {/* Tabla de habitaciones */}
-          <div className="card" style={{ flex: 1, minWidth: 320 }}>
+          <div className={`card ${styles.table}`}>
             <h2>Lista de Habitaciones</h2>
             <table className="table">
               <thead>
@@ -148,8 +155,8 @@ function ManageRooms() {
                     <td>{r.floor}</td>
                     <td>{r.capacity ? r.capacity : '-'}</td>
                     <td>
-                      <button className="btn btn-amarillo" onClick={() => handleEdit(r)}>Editar</button>
-                      <button className="btn btn-rojo" onClick={() => handleDelete(r._id)}>Eliminar</button>
+                      <button className="btn btn-amarillo" onClick={() => handleEdit(r)} title="Editar habitación">Editar</button>
+                      <button className="btn btn-rojo" onClick={() => handleDelete(r._id)} title="Eliminar habitación">Eliminar</button>
                     </td>
                   </tr>
                 ))}
@@ -157,6 +164,16 @@ function ManageRooms() {
             </table>
           </div>
         </div>
+        <ModalConfirm
+          isOpen={modal.open}
+          title={modal.title}
+          message={modal.message}
+          onConfirm={modal.onConfirm}
+          onCancel={() => setModal(m => ({ ...m, open: false }))}
+        />
+        <footer className={styles.footer}>
+          <span>© {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.</span>
+        </footer>
       </main>
     </div>
   );

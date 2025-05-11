@@ -1,0 +1,75 @@
+.reports-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: var(--color-bg);
+}
+.reports-main {
+  flex: 1;
+  padding: 32px;
+  margin-left: 240px;
+  background: var(--color-bg);
+  min-height: 100vh;
+}
+.reports-header {
+  margin-bottom: 32px;
+}
+.reports-title {
+  font-size: 2rem;
+  color: var(--color-title);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.reports-content {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.stats-grid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.card {
+  background: var(--color-card);
+  border-radius: 18px;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 4px 24px 0 #e3eafc;
+  border: 1px solid var(--color-border);
+  margin-bottom: 2rem;
+}
+.footer {
+  margin-top: 2rem;
+  padding: 1rem 0;
+  text-align: center;
+  color: var(--color-subtitle);
+  font-size: 0.95rem;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+.btnExport {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px 0 #e3eafc;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.btnExport:hover {
+  background: #1d4ed8;
+  box-shadow: 0 4px 16px 0 #c7d2fe;
+}
+.btnExport svg {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: middle;
+}

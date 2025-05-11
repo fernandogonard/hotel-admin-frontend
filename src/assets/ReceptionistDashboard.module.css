@@ -1,0 +1,51 @@
+.receptionist-dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: var(--color-bg);
+}
+.receptionist-dashboard-main {
+  flex: 1;
+  padding: 2.5rem;
+  margin-left: 240px;
+  background: var(--color-bg);
+  min-height: 100vh;
+}
+.receptionist-dashboard-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.receptionist-dashboard-title {
+  font-size: 2rem;
+  color: var(--color-title);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.receptionist-dashboard-subtitle {
+  color: var(--color-subtitle);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+.receptionist-dashboard-search {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  background: var(--color-bg-light);
+}
+.receptionist-dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.footer {
+  margin-top: 2rem;
+  padding: 1rem 0;
+  text-align: center;
+  color: var(--color-subtitle);
+  font-size: 0.95rem;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+}

@@ -25,7 +25,7 @@ export default function RoomTimeline() {
       try {
         const res = await axiosInstance.get('/reservations');
         setReservas(res.data);
-      } catch (err) {
+      } catch {
         // opcional: log
       }
     };

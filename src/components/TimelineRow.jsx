@@ -4,21 +4,27 @@ import styles from '../assets/RoomTimeline.module.css';
 
 const estadosLabel = {
   disponible: 'Disponible',
+  reservada: 'Reservada',
   ocupada: 'Ocupada',
   limpieza: 'Limpieza',
   mantenimiento: 'Mantenimiento',
+  'fuera de servicio': 'Fuera de servicio',
 };
 
 function getEstadoHabitacionDia(room, reservas, fecha) {
   if (room.status === 'limpieza') return 'limpieza';
   if (room.status === 'mantenimiento') return 'mantenimiento';
-  const ocupada = reservas.some(r =>
+  if (room.status === 'fuera de servicio') return 'fuera de servicio';
+  const reserva = reservas.find(r =>
     String(r.roomNumber) === String(room.number) &&
     new Date(r.checkIn) <= new Date(fecha) &&
     new Date(r.checkOut) > new Date(fecha)
   );
-  if (ocupada) return 'ocupada';
-  return 'disponible';
+  if (reserva) {
+    if (reserva.status === 'ocupado') return 'ocupada';
+    if (reserva.status === 'reservado') return 'reservada';
+  }
+  return room.status || 'disponible';
 }
 
 function getTooltip(room, reservas, fecha) {
@@ -51,7 +57,7 @@ export default function TimelineRow({ room, reservas, fechas }) {
         if (reserva) {
           contenido = `${reserva.firstName} ${reserva.lastName}`;
         }
-      } else if (estado === 'limpieza' || estado === 'mantenimiento') {
+      } else if (estado === 'limpieza' || estado === 'mantenimiento' || estado === 'fuera de servicio') {
         contenido = estadosLabel[estado];
       }
       return (

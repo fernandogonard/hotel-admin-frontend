@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { Link } from 'react-router-dom';
+import Sidebar from '../components/Sidebar';
+import ModalConfirm from '../components/ModalConfirm';
+import styles from '../assets/ManageGuests.module.css';
+import { toast } from 'react-toastify';
 
 function ManageGuests() {
   const [guests, setGuests] = useState([]);
@@ -13,7 +17,7 @@ function ManageGuests() {
     preferences: '',
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [message, setMessage] = useState('');
+  const [modal, setModal] = useState({ open: false, title: '', message: '', onConfirm: null });
 
   useEffect(() => {
     fetchGuests();
@@ -23,8 +27,8 @@ function ManageGuests() {
     try {
       const res = await axiosInstance.get('/guests');
       setGuests(res.data);
-    } catch (err) {
-      setMessage('Error al cargar huéspedes');
+    } catch {
+      toast.error('Error al cargar huéspedes');
     }
   };
 
@@ -38,10 +42,10 @@ function ManageGuests() {
     try {
       if (isEditing) {
         await axiosInstance.put(`/guests/${guest._id}`, guest);
-        setMessage('Huésped actualizado');
+        toast.success('Huésped actualizado');
       } else {
         await axiosInstance.post('/guests', guest);
-        setMessage('Huésped creado');
+        toast.success('Huésped creado');
       }
       setGuest({
         firstName: '',
@@ -54,7 +58,7 @@ function ManageGuests() {
       setIsEditing(false);
       fetchGuests();
     } catch {
-      alert('❌ Error al guardar la reserva. Intenta nuevamente.');
+      toast.error('❌ Error al guardar el huésped. Intenta nuevamente.');
     }
   };
 
@@ -64,36 +68,34 @@ function ManageGuests() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('¿Eliminar huésped?')) return;
-    try {
-      await axiosInstance.delete(`/guests/${id}`);
-      setMessage('Huésped eliminado');
-      fetchGuests();
-    } catch {
-      setMessage('Error al eliminar huésped');
-    }
+    setModal({
+      open: true,
+      title: 'Eliminar huésped',
+      message: '¿Estás seguro de eliminar este huésped? Esta acción no se puede deshacer.',
+      onConfirm: async () => {
+        setModal(m => ({ ...m, open: false }));
+        try {
+          await axiosInstance.delete(`/guests/${id}`);
+          setGuests(guests.filter(g => g._id !== id));
+          toast.success('Huésped eliminado');
+          fetchGuests();
+        } catch {
+          toast.error('❌ Error al eliminar el huésped.');
+        }
+      }
+    });
   };
 
   return (
-    <div className="guests-page">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <h2>Admin Hotel</h2>
-        <nav>
-          <Link to="/admin-dashboard">Dashboard</Link>
-          <Link to="/manage-rooms">Habitaciones</Link>
-          <Link to="/manage-reservations">Reservas</Link>
-          <Link to="/manage-guests">Clientes</Link>
-          <Link to="/reports">Informes</Link>
-        </nav>
-      </aside>
-      {/* Main */}
-      <main style={{ flex: 1, padding: '32px', marginLeft: '240px' }}>
-        <h1>Gestión de Huéspedes</h1>
-        {message && <div className="status-tag status-reservado">{message}</div>}
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+    <div className={styles.layout}>
+      <Sidebar />
+      <main className={styles.main}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Gestión de Huéspedes</h1>
+        </header>
+        <div className={styles.content}>
           {/* Formulario */}
-          <form onSubmit={handleSubmit} className="card" style={{ minWidth: 300, maxWidth: 350 }}>
+          <form onSubmit={handleSubmit} className={`card ${styles.form}`}>
             <h2>{isEditing ? 'Editar' : 'Nuevo'} Huésped</h2>
             <label htmlFor="firstName">Nombre</label>
             <input name="firstName" placeholder="Nombre" value={guest.firstName} onChange={handleInputChange} required />
@@ -111,7 +113,7 @@ function ManageGuests() {
             {isEditing && <button type="button" className="btn btn-rojo" style={{ marginTop: 8 }} onClick={() => { setIsEditing(false); setGuest({ firstName: '', lastName: '', email: '', phone: '', notes: '', preferences: '' }); }}>Cancelar</button>}
           </form>
           {/* Tabla de huéspedes */}
-          <div className="card" style={{ flex: 1, minWidth: 320 }}>
+          <div className={`card ${styles.table}`}>
             <h2>Lista de Huéspedes</h2>
             <table className="table">
               <thead>
@@ -131,8 +133,8 @@ function ManageGuests() {
                     <td>{g.email}</td>
                     <td>{g.phone}</td>
                     <td>
-                      <button className="btn btn-amarillo" onClick={() => handleEdit(g)}>Editar</button>
-                      <button className="btn btn-rojo" onClick={() => handleDelete(g._id)}>Eliminar</button>
+                      <button className="btn btn-amarillo" onClick={() => handleEdit(g)} title="Editar huésped">Editar</button>
+                      <button className="btn btn-rojo" onClick={() => handleDelete(g._id)} title="Eliminar huésped">Eliminar</button>
                     </td>
                   </tr>
                 ))}
@@ -140,6 +142,16 @@ function ManageGuests() {
             </table>
           </div>
         </div>
+        <ModalConfirm
+          isOpen={modal.open}
+          title={modal.title}
+          message={modal.message}
+          onConfirm={modal.onConfirm}
+          onCancel={() => setModal(m => ({ ...m, open: false }))}
+        />
+        <footer className={styles.footer}>
+          <span>© {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.</span>
+        </footer>
       </main>
     </div>
   );

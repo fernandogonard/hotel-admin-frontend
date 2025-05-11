@@ -15,7 +15,7 @@ const Sidebar = () => {
       try {
         const response = await axiosInstance.get('http://localhost:2117/api/rooms/admin-stats');
         setStats(response.data);
-      } catch (error) {
+      } catch {
         // Silenciar error para sidebar
       }
     };

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'; // Usado para navegación
 import { HiOutlineSearch } from 'react-icons/hi'; // Icono de búsqueda
 import { Bar } from 'react-chartjs-2'; // Para el gráfico de ocupación (requiere instalación de chart.js)
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import styles from '../assets/ReceptionistDashboard.module.css';
 
 // Registrar las escalas y otros componentes necesarios
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -23,7 +24,7 @@ function ReceptionistDashboard() {
   };
 
   return (
-    <div className="receptionist-dashboard" style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className={styles.layout}>
       <aside className="sidebar">
         <h2>Dashboard Recepcionista</h2>
         <nav>
@@ -34,54 +35,55 @@ function ReceptionistDashboard() {
           </ul>
         </nav>
       </aside>
-      <main style={{ flex: 1, padding: '2.5rem', marginLeft: '240px' }}>
-        <div className="card" style={{ maxWidth: '60rem', margin: '0 auto' }}>
-          <h1 style={{ textAlign: 'center' }}>Panel de Recepcionista</h1>
-          <p style={{ color: 'var(--color-subtitle)', marginBottom: '1.5rem', textAlign: 'center' }}>
-            Aquí podrás gestionar las reservas y el estado de las habitaciones.
-          </p>
-          {/* Barra de búsqueda */}
-          <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', border: '1px solid var(--color-border)', borderRadius: '0.75rem', padding: '0.5rem', background: 'var(--color-bg-light)' }}>
-            <HiOutlineSearch style={{ color: 'var(--color-subtitle)', marginRight: '0.5rem' }} />
-            <input
-              type="text"
-              placeholder="Buscar reserva o cliente"
-              style={{ width: '100%', border: 'none', padding: '0.5rem', outline: 'none', background: 'transparent', color: 'var(--color-title)' }}
-            />
-          </div>
-          {/* Gráfico de ocupación */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Ocupación de Habitaciones</h2>
-            <Bar data={data} options={{ responsive: true }} />
-          </div>
-          {/* Lista de habitaciones */}
-          <div style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Estado de las Habitaciones</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-              <div className="card" style={{ textAlign: 'center', background: '#22c55e', color: '#fff' }}>
-                <h3>Habitación 101</h3>
-                <p>Disponible</p>
-              </div>
-              <div className="card" style={{ textAlign: 'center', background: '#ff7f50', color: '#fff' }}>
-                <h3>Habitación 102</h3>
-                <p>Ocupada</p>
-              </div>
-              <div className="card" style={{ textAlign: 'center', background: '#6b7280', color: '#fff' }}>
-                <h3>Habitación 103</h3>
-                <p>Fuera de servicio</p>
-              </div>
+      <main className={styles.main}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Panel de Recepcionista</h1>
+          <p className={styles.subtitle}>Aquí podrás gestionar las reservas y el estado de las habitaciones.</p>
+        </div>
+        {/* Barra de búsqueda */}
+        <div className={styles.search}>
+          <HiOutlineSearch style={{ color: 'var(--color-subtitle)', marginRight: '0.5rem' }} />
+          <input
+            type="text"
+            placeholder="Buscar reserva o cliente"
+            style={{ width: '100%', border: 'none', padding: '0.5rem', outline: 'none', background: 'transparent', color: 'var(--color-title)' }}
+          />
+        </div>
+        {/* Gráfico de ocupación */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Ocupación de Habitaciones</h2>
+          <Bar data={data} options={{ responsive: true }} />
+        </div>
+        {/* Lista de habitaciones */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Estado de las Habitaciones</h2>
+          <div className={styles.cards}>
+            <div className="card" style={{ textAlign: 'center', background: '#22c55e', color: '#fff' }}>
+              <h3>Habitación 101</h3>
+              <p>Disponible</p>
+            </div>
+            <div className="card" style={{ textAlign: 'center', background: '#ff7f50', color: '#fff' }}>
+              <h3>Habitación 102</h3>
+              <p>Ocupada</p>
+            </div>
+            <div className="card" style={{ textAlign: 'center', background: '#6b7280', color: '#fff' }}>
+              <h3>Habitación 103</h3>
+              <p>Fuera de servicio</p>
             </div>
           </div>
-          {/* Acción rápida */}
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button className="btn" style={{ width: '50%' }}>
-              Crear Reserva
-            </button>
-            <button className="btn" style={{ width: '50%', background: '#48bb78' }}>
-              Gestionar Habitaciones
-            </button>
-          </div>
         </div>
+        {/* Acción rápida */}
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn" style={{ width: '50%' }}>
+            Crear Reserva
+          </button>
+          <button className="btn" style={{ width: '50%', background: '#48bb78' }}>
+            Gestionar Habitaciones
+          </button>
+        </div>
+        <footer className={styles.footer}>
+          <span>© {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.</span>
+        </footer>
       </main>
     </div>
   );

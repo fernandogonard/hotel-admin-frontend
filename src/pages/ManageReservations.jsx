@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axiosInstance from '../utils/axiosInstance';
+import Sidebar from '../components/Sidebar';
+import ModalConfirm from '../components/ModalConfirm';
 import { Link } from 'react-router-dom';
+import styles from '../assets/ManageReservations.module.css';
+import { toast } from 'react-toastify';
 
 function ManageReservations() {
   const [reservations, setReservations] = useState([]);
   const [reservation, setReservation] = useState(initialReservationState());
   const [isEditing, setIsEditing] = useState(false);
-  const [filters, setFilters] = useState({ name: '', date: '' });
   const formRef = useRef(null);
+  const [filter, setFilter] = useState({ estado: '', search: '' });
+  const [modal, setModal] = useState({ open: false, title: '', message: '', onConfirm: null });
 
   useEffect(() => {
     fetchReservations();
@@ -43,17 +48,15 @@ function ManageReservations() {
     });
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters({ ...filters, [name]: value });
-  };
+  const estados = ['reservado', 'ocupado', 'completado', 'cancelado'];
 
-  const filteredReservations = reservations.filter((r) => {
-    const fullName = `${r.firstName} ${r.lastName}`.toLowerCase();
-    const dateMatch =
-      filters.date === '' ||
-      r.checkIn.includes(filters.date) || r.checkOut.includes(filters.date);
-    return fullName.includes(filters.name.toLowerCase()) && dateMatch;
+  const filteredReservations = reservations.filter(r => {
+    const coincideEstado = !filter.estado || r.status === filter.estado;
+    const coincideSearch = !filter.search ||
+      r.firstName.toLowerCase().includes(filter.search.toLowerCase()) ||
+      r.lastName.toLowerCase().includes(filter.search.toLowerCase()) ||
+      String(r.roomNumber).includes(filter.search);
+    return coincideEstado && coincideSearch;
   });
 
   const isOverlapping = (newStart, newEnd, existingStart, existingEnd) => {
@@ -103,10 +106,10 @@ function ManageReservations() {
       fetchReservations();
       setReservation(initialReservationState());
       setIsEditing(false);
-      alert('✅ Reserva guardada exitosamente.');
+      toast.success(isEditing ? 'Reserva actualizada' : 'Reserva creada');
     } catch (err) {
       console.error('Error al guardar:', err);
-      alert('❌ Error al guardar la reserva. Intenta nuevamente.');
+      toast.error('Error al guardar la reserva. Intenta nuevamente.');
     }
   };
 
@@ -130,108 +133,199 @@ function ManageReservations() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Estás seguro de eliminar esta reserva?")) return;
-
-    try {
-      await axiosInstance.delete(`/reservations/${id}`);
-      fetchReservations();
-    } catch (err) {
-      console.error('Error al eliminar:', err);
-      alert('❌ Error al eliminar la reserva.');
-    }
+    setModal({
+      open: true,
+      title: 'Eliminar reserva',
+      message: '¿Estás seguro de eliminar esta reserva? Esta acción no se puede deshacer.',
+      onConfirm: async () => {
+        setModal(m => ({ ...m, open: false }));
+        try {
+          await axiosInstance.delete(`/reservations/${id}`);
+          setReservations(reservations.filter(r => r._id !== id));
+          toast.success('Reserva eliminada');
+        } catch (err) {
+          console.error('Error al eliminar:', err);
+          toast.error('Error al eliminar la reserva.');
+        }
+      }
+    });
   };
 
   const handleCheckIn = async (id) => {
-    if (!window.confirm('¿Confirmar check-in de esta reserva?')) return;
-    try {
-      await axiosInstance.post(`/reservations/${id}/checkin`);
-      fetchReservations();
-      alert('✅ Check-in realizado correctamente.');
-    } catch (err) {
-      alert('❌ Error al realizar check-in: ' + (err.response?.data?.message || err.message));
-    }
+    setModal({
+      open: true,
+      title: 'Confirmar check-in',
+      message: '¿Deseas realizar el check-in de esta reserva? Esta acción cambiará el estado de la habitación.',
+      onConfirm: async () => {
+        setModal(m => ({ ...m, open: false }));
+        try {
+          await axiosInstance.post(`/reservations/${id}/checkin`);
+          fetchReservations();
+          toast.success('Check-in realizado correctamente.');
+        } catch (err) {
+          toast.error('Error al realizar check-in: ' + (err.response?.data?.message || err.message));
+        }
+      }
+    });
   };
 
   const handleCheckOut = async (id) => {
-    if (!window.confirm('¿Confirmar check-out de esta reserva?')) return;
-    try {
-      await axiosInstance.post(`/reservations/${id}/checkout`);
-      fetchReservations();
-      alert('✅ Check-out realizado correctamente.');
-    } catch (err) {
-      alert('❌ Error al realizar check-out: ' + (err.response?.data?.message || err.message));
-    }
+    setModal({
+      open: true,
+      title: 'Confirmar check-out',
+      message: '¿Deseas realizar el check-out de esta reserva? La habitación pasará a estado limpieza.',
+      onConfirm: async () => {
+        setModal(m => ({ ...m, open: false }));
+        try {
+          await axiosInstance.post(`/reservations/${id}/checkout`);
+          fetchReservations();
+          toast.success('Check-out realizado correctamente.');
+        } catch (err) {
+          toast.error('Error al realizar check-out: ' + (err.response?.data?.message || err.message));
+        }
+      }
+    });
+  };
+
+  const handleSetAvailable = async (roomId) => {
+    setModal({
+      open: true,
+      title: 'Marcar habitación disponible',
+      message: '¿Marcar la habitación como disponible después de limpieza?',
+      onConfirm: async () => {
+        setModal(m => ({ ...m, open: false }));
+        try {
+          await axiosInstance.post(`/rooms/${roomId}/set-available`);
+          fetchReservations();
+          toast.success('Habitación marcada como disponible.');
+        } catch (err) {
+          toast.error('Error al marcar como disponible: ' + (err.response?.data?.message || err.message));
+        }
+      }
+    });
   };
 
   return (
-    <div className="rooms-page">
-      <aside className="sidebar">
-        <h2>Admin Hotel</h2>
-        <nav>
-          <Link to="/admin-dashboard" className="sidebar-link">Dashboard</Link>
-          <Link to="/manage-rooms" className="sidebar-link">Habitaciones</Link>
-          <Link to="/manage-reservations" className="sidebar-link">Reservas</Link>
-          <Link to="/manage-guests" className="sidebar-link">Clientes</Link>
-          <Link to="/reports" className="sidebar-link">Informes</Link>
-        </nav>
-      </aside>
-      <main>
-        <h1>Gestión de Reservas</h1>
-        <form onSubmit={handleSubmit} className="card" ref={formRef} style={{ maxWidth: 600, margin: '0 auto' }}>
-          <input className="input" type="text" name="firstName" placeholder="Nombre" value={reservation.firstName} onChange={handleInputChange} required />
-          <input className="input" type="text" name="lastName" placeholder="Apellido" value={reservation.lastName} onChange={handleInputChange} required />
-          <input className="input" type="tel" name="phone" placeholder="Teléfono" value={reservation.phone} onChange={handleInputChange} required />
-          <input className="input" type="email" name="email" placeholder="Correo electrónico" value={reservation.email} onChange={handleInputChange} required />
-          <input className="input" type="date" name="checkIn" value={reservation.checkIn} onChange={handleInputChange} required />
-          <input className="input" type="date" name="checkOut" value={reservation.checkOut} onChange={handleInputChange} required />
-          <input className="input" type="text" name="roomNumber" placeholder="Habitación" value={reservation.roomNumber} onChange={handleInputChange} required />
-          <input className="input" type="number" name="guests" placeholder="Nº Huéspedes" value={reservation.guests} onChange={handleInputChange} required min={1} />
-          <textarea className="input" name="notes" placeholder="Notas" value={reservation.notes} onChange={handleInputChange}></textarea>
-          <button className="btn" type="submit" style={{ marginTop: 8 }}>{isEditing ? 'Actualizar' : 'Crear'} Reserva</button>
-        </form>
-        <div style={{ margin: '2rem 0', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <input className="input" style={{ minWidth: 220 }} type="text" name="name" placeholder="Buscar por nombre o apellido" value={filters.name} onChange={handleFilterChange} />
-          <input className="input" style={{ minWidth: 180 }} type="date" name="date" value={filters.date} onChange={handleFilterChange} />
+    <div className={styles.layout}>
+      <Sidebar />
+      <main className={styles.main}>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Gestión de Reservas</h1>
+        </header>
+        <div style={{ marginBottom: '1rem', display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+          <label>
+            Estado:&nbsp;
+            <select value={filter.estado} onChange={e => setFilter(f => ({ ...f, estado: e.target.value }))}>
+              <option value="">Todos</option>
+              {estados.map(e => <option key={e} value={e}>{e.charAt(0).toUpperCase() + e.slice(1)}</option>)}
+            </select>
+          </label>
+          <input
+            type="text"
+            placeholder="Buscar nombre o habitación..."
+            value={filter.search}
+            onChange={e => setFilter(f => ({ ...f, search: e.target.value }))}
+            style={{ minWidth: 120 }}
+          />
         </div>
-        <div className="card" style={{ overflowX: 'auto' }}>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Email</th>
-                <th>Check-In</th>
-                <th>Check-Out</th>
-                <th>Habitación</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredReservations.map((res) => (
-                <tr key={res._id}>
-                  <td>{res.firstName} {res.lastName}</td>
-                  <td>{res.phone}</td>
-                  <td>{res.email}</td>
-                  <td>{res.checkIn}</td>
-                  <td>{res.checkOut}</td>
-                  <td>{res.roomNumber}</td>
-                  <td>
-                    <button className="btn btn-amarillo" onClick={() => handleEdit(res)} style={{ marginRight: 6 }}>Editar</button>
-                    <button className="btn btn-rojo" onClick={() => handleDelete(res._id)} style={{ marginRight: 6 }}>Eliminar</button>
-                    {res.status === 'reservado' &&
-                      new Date(res.checkIn).toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
-                        <button className="btn btn-azul" onClick={() => handleCheckIn(res._id)} style={{ marginRight: 6 }}>Check-in</button>
-                      )}
-                    {res.status === 'ocupado' &&
-                      new Date(res.checkOut).toISOString().slice(0, 10) <= new Date().toISOString().slice(0, 10) && (
-                        <button className="btn btn-azul" onClick={() => handleCheckOut(res._id)}>Check-out</button>
-                      )}
-                  </td>
+        <div className={styles.content}>
+          {/* Formulario */}
+          <form onSubmit={handleSubmit} className={`card ${styles.form}`} ref={formRef}>
+            <input className={styles.input} type="text" name="firstName" placeholder="Nombre" value={reservation.firstName} onChange={handleInputChange} required />
+            <input className={styles.input} type="text" name="lastName" placeholder="Apellido" value={reservation.lastName} onChange={handleInputChange} required />
+            <input className={styles.input} type="tel" name="phone" placeholder="Teléfono" value={reservation.phone} onChange={handleInputChange} required />
+            <input className={styles.input} type="email" name="email" placeholder="Correo electrónico" value={reservation.email} onChange={handleInputChange} required />
+            <input className={styles.input} type="date" name="checkIn" value={reservation.checkIn} onChange={handleInputChange} required />
+            <input className={styles.input} type="date" name="checkOut" value={reservation.checkOut} onChange={handleInputChange} required />
+            <input className={styles.input} type="text" name="roomNumber" placeholder="Habitación" value={reservation.roomNumber} onChange={handleInputChange} required />
+            <input className={styles.input} type="number" name="guests" placeholder="Nº Huéspedes" value={reservation.guests} onChange={handleInputChange} required min={1} />
+            <textarea className={styles.input} name="notes" placeholder="Notas" value={reservation.notes} onChange={handleInputChange}></textarea>
+            <button className={styles.btn} type="submit">{isEditing ? 'Actualizar' : 'Crear'} Reserva</button>
+          </form>
+          {/* Tabla de reservas */}
+          <div className={`card ${styles.table}`}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Teléfono</th>
+                  <th>Email</th>
+                  <th>Check-In</th>
+                  <th>Check-Out</th>
+                  <th>Habitación</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredReservations.map((res) => (
+                  <tr key={res._id}>
+                    <td>{res.firstName} {res.lastName}</td>
+                    <td>{res.phone}</td>
+                    <td>{res.email}</td>
+                    <td>{res.checkIn}</td>
+                    <td>{res.checkOut}</td>
+                    <td>{res.roomNumber}</td>
+                    <td><span className={`status-tag status-${res.status}`}>{res.status}</span></td>
+                    <td>
+                      <button
+                        className={`${styles.btn} ${styles.btnAmarillo}`}
+                        onClick={() => handleEdit(res)}
+                        title="Editar reserva"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className={`${styles.btn} ${styles.btnRojo}`}
+                        onClick={() => handleDelete(res._id)}
+                        title="Eliminar reserva"
+                      >
+                        Eliminar
+                      </button>
+                      {res.status === 'reservado' && (
+                        <button
+                          className={`${styles.btn} ${styles.btnAzul}`}
+                          onClick={() => handleCheckIn(res._id)}
+                          title="Realizar check-in"
+                        >
+                          Check-in
+                        </button>
+                      )}
+                      {res.status === 'ocupado' && (
+                        <button
+                          className={`${styles.btn} ${styles.btnAzul}`}
+                          onClick={() => handleCheckOut(res._id)}
+                          title="Realizar check-out"
+                        >
+                          Check-out
+                        </button>
+                      )}
+                      {res.status === 'completado' && (
+                        <button
+                          className={`${styles.btn} ${styles.btnVerde}`}
+                          onClick={() => handleSetAvailable(res.roomId)}
+                          title="Marcar habitación como disponible"
+                        >
+                          Marcar como disponible
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
+        <ModalConfirm
+          isOpen={modal.open}
+          title={modal.title}
+          message={modal.message}
+          onConfirm={modal.onConfirm}
+          onCancel={() => setModal(m => ({ ...m, open: false }))}
+        />
+        <footer className={styles.footer}>
+          <span>© {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.</span>
+        </footer>
       </main>
     </div>
   );

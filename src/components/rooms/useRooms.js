@@ -12,7 +12,7 @@ export function useRooms() {
       try {
         const res = await axiosInstance.get('/rooms');
         setRooms(res.data);
-      } catch (e) {
+      } catch {
         setRooms([]);
       } finally {
         setLoading(false);

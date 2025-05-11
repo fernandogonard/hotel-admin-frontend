@@ -8,9 +8,11 @@ import axiosInstance from '../utils/axiosInstance';
 
 const estadosLabel = {
   disponible: 'Disponible',
+  reservada: 'Reservada',
   ocupada: 'Ocupada',
   limpieza: 'Limpieza',
   mantenimiento: 'Mantenimiento',
+  'fuera de servicio': 'Fuera de servicio',
 };
 
 function agruparPorPiso(rooms) {
@@ -25,14 +27,18 @@ function getEstadoHabitacion(room, reservas, fecha) {
   // Si la habitación está en mantenimiento o limpieza, priorizar ese estado
   if (room.status === 'limpieza') return 'limpieza';
   if (room.status === 'mantenimiento') return 'mantenimiento';
+  if (room.status === 'fuera de servicio') return 'fuera de servicio';
   // Buscar si hay una reserva activa en la fecha seleccionada
-  const ocupada = reservas.some(r =>
+  const reserva = reservas.find(r =>
     String(r.roomNumber) === String(room.number) &&
     new Date(r.checkIn) <= new Date(fecha) &&
     new Date(r.checkOut) > new Date(fecha)
   );
-  if (ocupada) return 'ocupada';
-  return 'disponible';
+  if (reserva) {
+    if (reserva.status === 'ocupado') return 'ocupada';
+    if (reserva.status === 'reservado') return 'reservada';
+  }
+  return room.status || 'disponible';
 }
 
 export default function RoomGrid() {
@@ -43,6 +49,7 @@ export default function RoomGrid() {
   const [rooms, setRooms] = useState([]);
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState({ estado: '', piso: '', tipo: '', search: '' });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,8 +61,7 @@ export default function RoomGrid() {
         ]);
         setRooms(roomsRes.data);
         setReservas(reservasRes.data);
-      } catch (err) {
-        // eslint-disable-next-line no-alert
+      } catch {
         alert('Error al cargar habitaciones o reservas');
       } finally {
         setLoading(false);
@@ -64,11 +70,26 @@ export default function RoomGrid() {
     fetchData();
   }, []);
 
-  const roomsPorPiso = agruparPorPiso(rooms);
+  // Filtros únicos
+  const pisos = Array.from(new Set(rooms.map(r => r.floor))).sort();
+  const tipos = Array.from(new Set(rooms.map(r => r.type))).sort();
+  const estados = ['disponible', 'reservada', 'ocupada', 'limpieza', 'mantenimiento', 'fuera de servicio'];
+
+  // Filtrado avanzado
+  const roomsFiltradas = rooms.filter(room => {
+    const estado = getEstadoHabitacion(room, reservas, selectedDate);
+    const coincideEstado = !filter.estado || estado === filter.estado;
+    const coincidePiso = !filter.piso || String(room.floor) === String(filter.piso);
+    const coincideTipo = !filter.tipo || room.type === filter.tipo;
+    const coincideSearch = !filter.search || String(room.number).includes(filter.search) || (room.type && room.type.toLowerCase().includes(filter.search.toLowerCase()));
+    return coincideEstado && coincidePiso && coincideTipo && coincideSearch;
+  });
+
+  const roomsPorPiso = agruparPorPiso(roomsFiltradas);
 
   return (
     <div className={styles.gridContainer}>
-      <div style={{ marginBottom: '1rem' }}>
+      <div style={{ marginBottom: '1rem', display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
         <label>
           Día:&nbsp;
           <input
@@ -77,6 +98,34 @@ export default function RoomGrid() {
             onChange={e => setSelectedDate(e.target.value)}
           />
         </label>
+        <label>
+          Estado:&nbsp;
+          <select value={filter.estado} onChange={e => setFilter(f => ({ ...f, estado: e.target.value }))}>
+            <option value="">Todos</option>
+            {estados.map(e => <option key={e} value={e}>{estadosLabel[e]}</option>)}
+          </select>
+        </label>
+        <label>
+          Piso:&nbsp;
+          <select value={filter.piso} onChange={e => setFilter(f => ({ ...f, piso: e.target.value }))}>
+            <option value="">Todos</option>
+            {pisos.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </label>
+        <label>
+          Tipo:&nbsp;
+          <select value={filter.tipo} onChange={e => setFilter(f => ({ ...f, tipo: e.target.value }))}>
+            <option value="">Todos</option>
+            {tipos.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </label>
+        <input
+          type="text"
+          placeholder="Buscar número o tipo..."
+          value={filter.search}
+          onChange={e => setFilter(f => ({ ...f, search: e.target.value }))}
+          style={{ minWidth: 120 }}
+        />
       </div>
       {loading ? (
         <div style={{ textAlign: 'center', margin: '2rem' }}>Cargando habitaciones...</div>

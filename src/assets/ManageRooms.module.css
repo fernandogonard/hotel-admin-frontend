@@ -1,0 +1,56 @@
+.manage-rooms-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: var(--color-bg);
+}
+.manage-rooms-main {
+  flex: 1;
+  padding: 32px;
+  margin-left: 240px;
+  background: var(--color-bg);
+  min-height: 100vh;
+}
+.manage-rooms-header {
+  margin-bottom: 32px;
+}
+.manage-rooms-title {
+  font-size: 2rem;
+  color: var(--color-title);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.manage-rooms-content {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.manage-rooms-form {
+  min-width: 300px;
+  max-width: 350px;
+}
+.manage-rooms-table {
+  flex: 1;
+  min-width: 320px;
+}
+.status-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  margin-right: 4px;
+}
+.status-disponible { background: #e0ffe0; color: #1a7f1a; }
+.status-ocupada { background: #ffe0e0; color: #b30000; }
+.status-limpieza { background: #fffbe0; color: #b38f00; }
+.status-mantenimiento { background: #e0e6ff; color: #0033b3; }
+
+.footer {
+  margin-top: 2rem;
+  padding: 1rem 0;
+  text-align: center;
+  color: var(--color-subtitle);
+  font-size: 0.95rem;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
