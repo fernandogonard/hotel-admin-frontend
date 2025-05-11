@@ -6,6 +6,7 @@ import axiosInstance from '../utils/axiosInstance';
 import TimelineHeader from './TimelineHeader';
 import TimelineRow from './TimelineRow';
 import { useRooms } from './rooms/useRooms';
+import { Tooltip } from 'react-tooltip';
 
 const VISTAS = { '7': 7, '15': 15, '30': 30 };
 
@@ -100,16 +101,32 @@ export default function RoomTimeline() {
             style={{ overflowX: 'hidden' }}
           >
             {({ index, style }) => (
-              <div style={style}>
+              <div style={style} tabIndex={0} role="row" aria-label={`Habitación ${rooms[index].number}`}>
                 <TimelineRow
                   key={rooms[index]._id}
                   room={rooms[index]}
                   reservas={reservas}
                   fechas={fechas}
+                  renderCell={(fecha, estado) => (
+                    <div
+                      className={`${styles.cell} ${styles[estado]}`}
+                      data-tip={`Habitación ${rooms[index].number} - ${estado}`}
+                      role="gridcell"
+                      aria-label={`Estado: ${estado}`}
+                    >
+                      <button
+                        onClick={() => alert(`Acción rápida para ${rooms[index].number}`)}
+                        aria-label="Acción rápida"
+                      >
+                        ⚙️
+                      </button>
+                    </div>
+                  )}
                 />
               </div>
             )}
           </List>
+          <Tooltip effect="solid" />
         </div>
       )}
     </div>

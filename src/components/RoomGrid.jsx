@@ -61,13 +61,19 @@ export default function RoomGrid() {
         ]);
         setRooms(roomsRes.data);
         setReservas(reservasRes.data);
-      } catch {
-        alert('Error al cargar habitaciones o reservas');
+      } catch (error) {
+        console.error('Error al cargar habitaciones o reservas:', error);
+        alert('No se pudieron cargar los datos. Por favor, intente nuevamente más tarde.');
       } finally {
         setLoading(false);
       }
     };
+
+    // Llamar a fetchData inicialmente y luego cada 30 segundos
     fetchData();
+    const intervalId = setInterval(fetchData, 30000);
+
+    return () => clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
   }, []);
 
   // Filtros únicos
