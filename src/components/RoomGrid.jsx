@@ -8,8 +8,8 @@ import axiosInstance from '../utils/axiosInstance';
 
 const estadosLabel = {
   disponible: 'Disponible',
-  reservada: 'Reservada',
-  ocupada: 'Ocupada',
+  reservado: 'Reservado',
+  ocupado: 'Ocupado',
   limpieza: 'Limpieza',
   mantenimiento: 'Mantenimiento',
   'fuera de servicio': 'Fuera de servicio',
@@ -24,19 +24,17 @@ function agruparPorPiso(rooms) {
 }
 
 function getEstadoHabitacion(room, reservas, fecha) {
-  // Si la habitación está en mantenimiento o limpieza, priorizar ese estado
   if (room.status === 'limpieza') return 'limpieza';
   if (room.status === 'mantenimiento') return 'mantenimiento';
   if (room.status === 'fuera de servicio') return 'fuera de servicio';
-  // Buscar si hay una reserva activa en la fecha seleccionada
   const reserva = reservas.find(r =>
     String(r.roomNumber) === String(room.number) &&
     new Date(r.checkIn) <= new Date(fecha) &&
     new Date(r.checkOut) > new Date(fecha)
   );
   if (reserva) {
-    if (reserva.status === 'ocupado') return 'ocupada';
-    if (reserva.status === 'reservado') return 'reservada';
+    if (reserva.status === 'ocupado') return 'ocupado';
+    if (reserva.status === 'reservado') return 'reservado';
   }
   return room.status || 'disponible';
 }
@@ -69,19 +67,15 @@ export default function RoomGrid() {
       }
     };
 
-    // Llamar a fetchData inicialmente y luego cada 30 segundos
     fetchData();
     const intervalId = setInterval(fetchData, 30000);
-
-    return () => clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
+    return () => clearInterval(intervalId);
   }, []);
 
-  // Filtros únicos
   const pisos = Array.from(new Set(rooms.map(r => r.floor))).sort();
   const tipos = Array.from(new Set(rooms.map(r => r.type))).sort();
-  const estados = ['disponible', 'reservada', 'ocupada', 'limpieza', 'mantenimiento', 'fuera de servicio'];
+  const estados = ['disponible', 'reservado', 'ocupado', 'limpieza', 'mantenimiento', 'fuera de servicio'];
 
-  // Filtrado avanzado
   const roomsFiltradas = rooms.filter(room => {
     const estado = getEstadoHabitacion(room, reservas, selectedDate);
     const coincideEstado = !filter.estado || estado === filter.estado;

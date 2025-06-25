@@ -31,11 +31,11 @@
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  color: #000000;
+  color: var(--neutral-900);
   font-weight: 500;
   cursor: pointer;
   transition: transform 0.1s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 4px var(--shadow-sm);
 }
 
 .roomCell:hover {
@@ -44,20 +44,23 @@
 }
 
 .disponible {
-  background: #22c55e;
+  background: var(--success-500);
+  color: white;
 }
 
 .ocupada {
-  background: #ef4444;
+  background: var(--error-500);
+  color: white;
 }
 
 .limpieza {
-  background: #facc15;
-  color: #333;
+  background: var(--warning-500);
+  color: var(--neutral-800);
 }
 
 .mantenimiento {
-  background: #6b7280;
+  background: var(--neutral-500);
+  color: white;
 }
 
 .roomNumber {

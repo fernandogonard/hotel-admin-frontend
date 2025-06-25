@@ -10,6 +10,7 @@ import ManageRooms from './pages/ManageRooms';
 import ManageReservations from './pages/ManageReservations';
 import Reports from './pages/Reports';
 import ManageGuests from './pages/ManageGuests';
+import ServerStatus from './components/ServerStatus';
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
         />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
+      <ServerStatus />
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
     </>
   );

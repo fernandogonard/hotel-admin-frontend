@@ -95,4 +95,7 @@ function Login() {
   );
 }
 
+// FIXME: Reemplaza los colores hardcodeados por variables CSS de la nueva paleta en todos los estilos en línea y clases.
+// Ejemplo: background: 'var(--primary)' en vez de background: '#458cf4'
+
 export default Login;

@@ -13,6 +13,7 @@ function ManageReservations() {
   const formRef = useRef(null);
   const [filter, setFilter] = useState({ estado: '', search: '' });
   const [modal, setModal] = useState({ open: false, title: '', message: '', onConfirm: null });
+  const [activeRoom, setActiveRoom] = useState('');
 
   useEffect(() => {
     fetchReservations();
@@ -24,6 +25,18 @@ function ManageReservations() {
       setReservations(res.data);
     } catch (error) {
       console.error("Error al cargar reservas:", error);
+    }
+  };
+
+  // Nueva función para buscar reservas activas por habitación
+  const fetchActiveByRoom = async (roomNumber) => {
+    if (!roomNumber) return;
+    try {
+      const res = await axiosInstance.get(`/reservations/active-by-room/${roomNumber}`);
+      setReservations(res.data);
+      setFilter({ estado: '', search: '' });
+    } catch (error) {
+      console.error("Error al buscar reservas activas:", error);
     }
   };
 
@@ -69,11 +82,11 @@ function ManageReservations() {
 
     // Validación de fechas
     if (new Date(reservation.checkIn) >= new Date(reservation.checkOut)) {
-      alert("⚠️ La fecha de entrada debe ser anterior a la de salida.");
+      toast.error("⚠️ La fecha de entrada debe ser anterior a la de salida.");
       return;
     }
 
-    // Verificar conflictos de reserva
+    // Verificar conflictos de reserva (frontend, pero el backend también valida)
     const conflict = reservations.some((r) =>
       r.roomNumber === reservation.roomNumber &&
       (!isEditing || r._id !== reservation._id) &&
@@ -81,7 +94,7 @@ function ManageReservations() {
     );
 
     if (conflict) {
-      alert("⚠️ Ya existe una reserva para esta habitación en las fechas seleccionadas.");
+      toast.error("⚠️ Ya existe una reserva para esta habitación en las fechas seleccionadas.");
       return;
     }
 
@@ -108,8 +121,12 @@ function ManageReservations() {
       setIsEditing(false);
       toast.success(isEditing ? 'Reserva actualizada' : 'Reserva creada');
     } catch (err) {
-      console.error('Error al guardar:', err);
-      toast.error('Error al guardar la reserva. Intenta nuevamente.');
+      // Mostrar mensaje de error del backend si es conflicto de fechas
+      if (err.response && err.response.data && err.response.data.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error('Error al guardar la reserva. Intenta nuevamente.');
+      }
     }
   };
 
@@ -205,6 +222,25 @@ function ManageReservations() {
     });
   };
 
+  // Nueva función para cancelar reserva usando endpoint dedicado
+  const handleCancel = async (id) => {
+    setModal({
+      open: true,
+      title: 'Cancelar reserva',
+      message: '¿Estás seguro de cancelar esta reserva? Esta acción no se puede deshacer.',
+      onConfirm: async () => {
+        setModal(m => ({ ...m, open: false }));
+        try {
+          await axiosInstance.put(`/reservations/${id}/cancel`);
+          fetchReservations();
+          toast.success('Reserva cancelada');
+        } catch {
+          toast.error('Error al cancelar la reserva.');
+        }
+      }
+    });
+  };
+
   return (
     <div className={styles.layout}>
       <Sidebar />
@@ -227,6 +263,36 @@ function ManageReservations() {
             onChange={e => setFilter(f => ({ ...f, search: e.target.value }))}
             style={{ minWidth: 120 }}
           />
+          <label>
+            Ver activas por habitación:&nbsp;
+            <input
+              type="text"
+              placeholder="Ej: 101"
+              value={activeRoom}
+              onChange={e => setActiveRoom(e.target.value)}
+              style={{ width: 70 }}
+            />
+            <button
+              className={styles.btn}
+              type="button"
+              style={{ marginLeft: 4, padding: '0.4em 1em' }}
+              onClick={() => fetchActiveByRoom(activeRoom)}
+              disabled={!activeRoom}
+              title="Buscar reservas activas por habitación"
+            >
+              Buscar
+            </button>
+            <button
+              className={styles.btn}
+              type="button"
+              style={{ marginLeft: 4, padding: '0.4em 1em', background: 'var(--text-light)' }}
+              onClick={() => { setActiveRoom(''); fetchReservations(); }}
+              disabled={!activeRoom}
+              title="Limpiar filtro"
+            >
+              Limpiar
+            </button>
+          </label>
         </div>
         <div className={styles.content}>
           {/* Formulario */}
@@ -282,6 +348,16 @@ function ManageReservations() {
                       >
                         Eliminar
                       </button>
+                      {/* Botón cancelar solo si no está cancelada */}
+                      {res.status !== 'cancelado' && (
+                        <button
+                          className={`${styles.btn} ${styles.btnGris}`}
+                          onClick={() => handleCancel(res._id)}
+                          title="Cancelar reserva"
+                        >
+                          Cancelar
+                        </button>
+                      )}
                       {res.status === 'reservado' && (
                         <button
                           className={`${styles.btn} ${styles.btnAzul}`}
@@ -330,5 +406,8 @@ function ManageReservations() {
     </div>
   );
 }
+
+// FIXME: Reemplaza los colores hardcodeados por variables CSS de la nueva paleta en todos los estilos en línea y clases.
+// Ejemplo: background: 'var(--primary)' en vez de background: '#458cf4'
 
 export default ManageReservations;

@@ -1,1 +1,0 @@
-// Este archivo fue eliminado porque es un duplicado innecesario. Usar src/pages/Login.jsx.

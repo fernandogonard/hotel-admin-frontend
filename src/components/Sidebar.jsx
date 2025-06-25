@@ -13,7 +13,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axiosInstance.get('http://localhost:2117/api/rooms/admin-stats');
+        const response = await axiosInstance.get('/rooms/admin-stats');
         setStats(response.data);
       } catch {
         // Silenciar error para sidebar

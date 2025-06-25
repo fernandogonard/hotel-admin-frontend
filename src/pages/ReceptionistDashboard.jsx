@@ -58,15 +58,15 @@ function ReceptionistDashboard() {
         <div style={{ marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Estado de las Habitaciones</h2>
           <div className={styles.cards}>
-            <div className="card" style={{ textAlign: 'center', background: '#22c55e', color: '#fff' }}>
+            <div className="card" style={{ textAlign: 'center', background: 'var(--success)', color: 'var(--card-bg)' }}>
               <h3>Habitación 101</h3>
               <p>Disponible</p>
             </div>
-            <div className="card" style={{ textAlign: 'center', background: '#ff7f50', color: '#fff' }}>
+            <div className="card" style={{ textAlign: 'center', background: 'var(--danger)', color: 'var(--card-bg)' }}>
               <h3>Habitación 102</h3>
               <p>Ocupada</p>
             </div>
-            <div className="card" style={{ textAlign: 'center', background: '#6b7280', color: '#fff' }}>
+            <div className="card" style={{ textAlign: 'center', background: 'var(--text-light)', color: 'var(--card-bg)' }}>
               <h3>Habitación 103</h3>
               <p>Fuera de servicio</p>
             </div>
@@ -77,7 +77,7 @@ function ReceptionistDashboard() {
           <button className="btn" style={{ width: '50%' }}>
             Crear Reserva
           </button>
-          <button className="btn" style={{ width: '50%', background: '#48bb78' }}>
+          <button className="btn" style={{ width: '50%', background: 'var(--success)' }}>
             Gestionar Habitaciones
           </button>
         </div>
@@ -90,3 +90,6 @@ function ReceptionistDashboard() {
 }
 
 export default ReceptionistDashboard;
+
+// FIXME: Reemplaza los colores hardcodeados por variables CSS de la nueva paleta en todos los estilos en línea y clases.
+// Ejemplo: background: 'var(--primary)' en vez de background: '#458cf4'

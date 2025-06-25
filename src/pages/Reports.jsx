@@ -12,14 +12,14 @@ const Reports = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const generalRes = await axiosInstance.get('/api/reports/general');
-        const reservationRes = await axiosInstance.get('/api/reports/reservations');
-        const roomRes = await axiosInstance.get('/api/reports/rooms');
+        const generalRes = await axiosInstance.get('/reports/general');
+        const reservationRes = await axiosInstance.get('/reports/reservations');
+        const roomRes = await axiosInstance.get('/reports/rooms');
         setGeneralReports(generalRes.data);
         setReservationReports(reservationRes.data);
         setRoomReports(roomRes.data);
-      } catch {
-        // Error silenciado, se puede mostrar un mensaje si se desea
+      } catch (error) {
+        console.error('Error fetching reports:', error);
       }
     };
     fetchReports();

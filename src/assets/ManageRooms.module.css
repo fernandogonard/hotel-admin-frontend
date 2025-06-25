@@ -40,10 +40,10 @@
   font-size: 0.9em;
   margin-right: 4px;
 }
-.status-disponible { background: #e0ffe0; color: #1a7f1a; }
-.status-ocupada { background: #ffe0e0; color: #b30000; }
-.status-limpieza { background: #fffbe0; color: #b38f00; }
-.status-mantenimiento { background: #e0e6ff; color: #0033b3; }
+.status-disponible { background: var(--success-50); color: var(--success-700); }
+.status-ocupada { background: var(--error-50); color: var(--error-700); }
+.status-limpieza { background: var(--warning-50); color: var(--warning-600); }
+.status-mantenimiento { background: var(--info-50); color: var(--info-600); }
 
 .footer {
   margin-top: 2rem;

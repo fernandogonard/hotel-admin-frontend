@@ -1,17 +1,17 @@
 :root {
-  --color-disponible: #e0ffe0;
-  --color-ocupada: #ffc9c9;
-  --color-limpieza: #fff3bf;
-  --color-mantenimiento: #ced4da;
-  --color-texto: #495057;
-  --color-border: #dee2e6;
+  --color-disponible: var(--success-50);
+  --color-ocupada: var(--error-50);
+  --color-limpieza: var(--warning-50);
+  --color-mantenimiento: var(--neutral-100);
+  --color-texto: var(--neutral-700);
+  --color-border: var(--neutral-200);
 }
 
 .timelineContainer {
   font-family: 'Roboto', 'Helvetica', sans-serif;
   padding: 1rem;
   overflow-x: auto;
-  background: #f8f9fa;
+  background: var(--neutral-50);
 }
 
 .timelineGrid {
@@ -21,9 +21,9 @@
   max-height: 80vh;
   position: relative;
   min-width: max-content;
-  background: #f8fafd;
+  background: var(--neutral-50);
   border-radius: 12px;
-  box-shadow: 0 2px 12px 0 #e3eafc;
+  box-shadow: 0 2px 12px 0 var(--shadow-md);
 }
 
 .timelineHeaderRow, .timelineRoomRow {
@@ -37,17 +37,17 @@
   position: sticky;
   top: 38px;
   z-index: 10;
-  background: #e3eafc;
-  border-bottom: 2px solid #b0bec5;
+  background: var(--primary-100);
+  border-bottom: 2px solid var(--primary-200);
 }
 
 .timelineRoomRow {
-  background: #fff;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--neutral-50);
+  border-bottom: 1px solid var(--neutral-200);
 }
 
 .roomHeader, .roomCell {
-  background: #e3eafc;
+  background: var(--primary-100);
   font-weight: bold;
   position: sticky;
   left: 0;

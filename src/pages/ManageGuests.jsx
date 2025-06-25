@@ -158,3 +158,4 @@ function ManageGuests() {
 }
 
 export default ManageGuests;
+// Este código es parte de un sistema de gestión de huéspedes para un hotel, implementado en React.

@@ -4,7 +4,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.4);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,10 +12,10 @@
 }
 
 .modal {
-  background: #fff;
+  background: var(--neutral-50);
   border-radius: 8px;
   padding: 2rem 2.5rem;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+  box-shadow: 0 2px 16px var(--shadow-lg);
   min-width: 320px;
   max-width: 90vw;
   text-align: center;
@@ -29,8 +29,8 @@
 }
 
 .confirm {
-  background: #007bff;
-  color: #fff;
+  background: var(--primary-500);
+  color: var(--neutral-50);
   border: none;
   padding: 0.5rem 1.5rem;
   border-radius: 4px;
@@ -39,12 +39,12 @@
   transition: background 0.2s;
 }
 .confirm:hover {
-  background: #0056b3;
+  background: var(--primary-600);
 }
 
 .cancel {
-  background: #e0e0e0;
-  color: #333;
+  background: var(--neutral-200);
+  color: var(--neutral-700);
   border: none;
   padding: 0.5rem 1.5rem;
   border-radius: 4px;
@@ -53,5 +53,5 @@
   transition: background 0.2s;
 }
 .cancel:hover {
-  background: #bdbdbd;
+  background: var(--neutral-300);
 }

@@ -39,11 +39,17 @@ function ManageRooms() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    // Convierte amenities a array si es string
+    const roomData = {
+      ...room,
+      amenities: typeof room.amenities === 'string'
+        ? room.amenities.split(',').map(a => a.trim()).filter(Boolean)
+        : room.amenities
+    };
     const url = isEditing ? `/rooms/${room._id}` : '/rooms';
     const method = isEditing ? axiosInstance.put : axiosInstance.post;
 
-    method(url, room)
+    method(url, roomData)
       .then(() => {
         toast.success(isEditing ? 'Habitación actualizada' : 'Habitación creada');
         setIsEditing(false);
