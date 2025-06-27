@@ -5,12 +5,15 @@ import 'react-toastify/dist/ReactToastify.css';
 import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
+import DashboardAvanzado from './pages/DashboardAvanzado';
+import CalendarioReservas from './pages/CalendarioReservas';
 import ReceptionistDashboard from './pages/ReceptionistDashboard';
 import ManageRooms from './pages/ManageRooms';
 import ManageReservations from './pages/ManageReservations';
 import Reports from './pages/Reports';
 import ManageGuests from './pages/ManageGuests';
 import ServerStatus from './components/ServerStatus';
+import UserHistory from './pages/UserHistory';
 
 function App() {
   return (
@@ -22,6 +25,22 @@ function App() {
           element={
             <PrivateRoute>
               <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dashboard-avanzado"
+          element={
+            <PrivateRoute>
+              <DashboardAvanzado />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/calendario-reservas"
+          element={
+            <PrivateRoute>
+              <CalendarioReservas />
             </PrivateRoute>
           }
         />
@@ -62,6 +81,14 @@ function App() {
           element={
             <PrivateRoute>
               <ManageGuests />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/mi-historial"
+          element={
+            <PrivateRoute>
+              <UserHistory />
             </PrivateRoute>
           }
         />

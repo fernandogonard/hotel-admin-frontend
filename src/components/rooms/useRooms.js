@@ -17,20 +17,7 @@ export function useRooms() {
       } catch (error) {
         console.error('❌ Error fetching rooms:', error);
         console.log('Error details:', error.response?.data || error.message);
-        
-        // 🔧 FALLBACK: Si el backend no responde, usar datos mock
-        console.warn('⚠️ Backend no responde, usando habitaciones de demostración');
-        const mockRooms = Array.from({ length: 20 }, (_, i) => ({
-          _id: `mock-${i}`,
-          number: 101 + i,
-          type: i % 2 === 0 ? 'Simple' : 'Doble',
-          price: i % 2 === 0 ? 100 : 150,
-          floor: Math.floor(i / 10) + 1,
-          status: i % 3 === 0 ? 'disponible' : i % 3 === 1 ? 'ocupado' : 'limpieza',
-          capacity: i % 2 === 0 ? 1 : 2,
-          amenities: ['WiFi', 'TV']
-        }));
-        setRooms(mockRooms);
+        setRooms([]); // No mostrar datos demo
       } finally {
         setLoading(false);
       }

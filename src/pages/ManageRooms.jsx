@@ -21,6 +21,8 @@ function ManageRooms() {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [modal, setModal] = useState({ open: false, title: '', message: '', onConfirm: null });
+  const [editRowId, setEditRowId] = useState(null);
+  const [editField, setEditField] = useState({});
 
   useEffect(() => {
     fetchRooms();
@@ -156,7 +158,22 @@ function ManageRooms() {
                     <td>{r.number}</td>
                     <td>{r.type}</td>
                     <td>{r.description}</td>
-                    <td>{r.price}</td>
+                    <td>
+                      {editRowId === r._id ? (
+                        <input
+                          value={editField.price || r.price}
+                          onChange={e => setEditField(f => ({ ...f, price: e.target.value }))}
+                          onBlur={async () => {
+                            await axiosInstance.put(`/rooms/${r._id}`, { ...r, price: editField.price });
+                            setEditRowId(null);
+                            fetchRooms();
+                          }}
+                          autoFocus
+                        />
+                      ) : (
+                        <span onClick={() => { setEditRowId(r._id); setEditField({ price: r.price }); }}>{r.price}</span>
+                      )}
+                    </td>
                     <td><span className={`status-tag status-${r.status}`}>{r.status}</span></td>
                     <td>{r.floor}</td>
                     <td>{r.capacity ? r.capacity : '-'}</td>

@@ -13,7 +13,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axiosInstance.get('/rooms/admin-stats');
+        const response = await axiosInstance.get('/reports/general');
         setStats(response.data);
       } catch {
         // Silenciar error para sidebar
@@ -32,9 +32,12 @@ const Sidebar = () => {
       <h2 className="sidebar-title">Admin Hotel</h2>
       <nav className="sidebar-nav">
         <Link to="/admin-dashboard" className="sidebar-link">Dashboard</Link>
+        <Link to="/dashboard-avanzado" className="sidebar-link">📊 Dashboard Avanzado</Link>
+        <Link to="/calendario-reservas" className="sidebar-link">📅 Calendario</Link>
         <Link to="/manage-rooms" className="sidebar-link">Habitaciones</Link>
         <Link to="/manage-reservations" className="sidebar-link">Reservas</Link>
         <Link to="/reports" className="sidebar-link">Reportes</Link>
+        <Link to="/mi-historial" className="sidebar-link">🗂️ Mi Historial</Link>
       </nav>
       <div className="sidebar-stats">
         <div className="sidebar-stat sidebar-stat-ocupadas">

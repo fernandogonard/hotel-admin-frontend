@@ -1,3 +1,6 @@
+// Archivo obsoleto: toda la validación de formularios ahora se realiza con Yup/Formik.
+// Puedes eliminar este archivo si no usas validaciones personalizadas fuera de los formularios.
+
 // utils/validators.js - Validaciones del lado cliente
 import { useState } from 'react';
 export const validators = {

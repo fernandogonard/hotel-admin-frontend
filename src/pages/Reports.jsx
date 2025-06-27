@@ -3,11 +3,12 @@ import axiosInstance from '../utils/axiosInstance';
 import { Link } from 'react-router-dom';
 import styles from '../assets/Reports.module.css';
 import Sidebar from '../components/Sidebar';
+import { toast } from 'react-toastify';
 
 const Reports = () => {
-  const [generalReports, setGeneralReports] = useState(null);
-  const [reservationReports, setReservationReports] = useState(null);
-  const [roomReports, setRoomReports] = useState(null);
+  const [generalReports, setGeneralReports] = useState({});
+  const [reservationReports, setReservationReports] = useState({});
+  const [roomReports, setRoomReports] = useState([]);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -20,6 +21,7 @@ const Reports = () => {
         setRoomReports(roomRes.data);
       } catch (error) {
         console.error('Error fetching reports:', error);
+        toast.error('Error al cargar los reportes');
       }
     };
     fetchReports();

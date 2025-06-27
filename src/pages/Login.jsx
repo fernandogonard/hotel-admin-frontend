@@ -1,56 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../utils/axiosInstance';
+import { useAuth } from '../hooks/useAuth';
 
 function Login() {
   const navigate = useNavigate();
+  const { login, user, storageError, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // Si ya hay token, redirige automáticamente según el rol
   useEffect(() => {
-    const checkToken = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const res = await axiosInstance.get('/auth/me');
-          const role = res.data.user.role;
-          if (role === 'admin') {
-            navigate('/admin-dashboard');
-          } else if (role === 'receptionist') {
-            navigate('/receptionist-dashboard');
-          }
-        } catch {
-          localStorage.removeItem('token');
-        }
+    if (!loading && user) {
+      if (user.role === 'admin') {
+        navigate('/admin-dashboard');
+      } else if (user.role === 'receptionist') {
+        navigate('/receptionist-dashboard');
       }
-    };
-    checkToken();
-  }, [navigate]);
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return <div style={{ padding: 32 }}>Cargando autenticación...</div>;
+  }
+
+  if (storageError) {
+    return (
+      <div style={{ color: 'red', padding: 32 }}>
+        <h2>Error de seguridad</h2>
+        <p>No se puede acceder al almacenamiento local del navegador.<br />
+        Por favor, revisa la configuración de privacidad o prueba en otro navegador.</p>
+        <pre>{storageError}</pre>
+      </div>
+    );
+  }
+
+  if (user) return null;
 
   const handleLogin = async () => {
-    setLoading(true);
+    if (!email || !password) {
+      setError('Por favor completa todos los campos');
+      return;
+    }
+    setFormLoading(true);
+    setError('');
     try {
-      const response = await axiosInstance.post('/auth/login', { email, password });
-      localStorage.setItem('token', response.data.token);
-      const role = response.data.user.role;
-      if (role === 'admin') {
-        navigate('/admin-dashboard');
-      } else if (role === 'receptionist') {
-        navigate('/receptionist-dashboard');
+      const result = await login(email, password);
+      if (result.success) {
+        // La redirección se maneja automáticamente en useEffect
+        console.log('✅ Login exitoso');
       } else {
-        navigate('/admin-dashboard');
+        setError(result.message || 'Error de autenticación');
       }
     } catch (error) {
-      // Mostrar mensaje de error del backend si existe
-      if (error.response && error.response.data && error.response.data.message) {
-        alert('❌ ' + error.response.data.message);
-      } else {
-        alert('❌ Credenciales incorrectas.');
-      }
+      setError('Error de conexión. Verifica tu red e intenta nuevamente.');
+      console.error('❌ Error en login:', error);
     } finally {
-      setLoading(false);
+      setFormLoading(false);
     }
   };
 
@@ -73,13 +79,26 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+        {error && (
+          <div style={{
+            color: '#dc3545',
+            backgroundColor: '#f8d7da',
+            border: '1px solid #f5c6cb',
+            borderRadius: '4px',
+            padding: '8px 12px',
+            fontSize: '14px',
+            marginTop: '8px'
+          }}>
+            {error}
+          </div>
+        )}
         <button
           onClick={handleLogin}
-          disabled={!email || !password || loading}
+          disabled={!email || !password || formLoading}
           className="btn"
-          style={{ opacity: !email || !password || loading ? 0.5 : 1, cursor: !email || !password || loading ? 'not-allowed' : 'pointer', marginTop: 16 }}
+          style={{ opacity: !email || !password || formLoading ? 0.5 : 1, cursor: !email || !password || formLoading ? 'not-allowed' : 'pointer', marginTop: 16 }}
         >
-          {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+          {formLoading ? 'Ingresando...' : 'Iniciar Sesión'}
         </button>
         <div style={{ marginTop: 16, textAlign: 'center' }}>
           <a
@@ -94,8 +113,5 @@ function Login() {
     </div>
   );
 }
-
-// FIXME: Reemplaza los colores hardcodeados por variables CSS de la nueva paleta en todos los estilos en línea y clases.
-// Ejemplo: background: 'var(--primary)' en vez de background: '#458cf4'
 
 export default Login;
