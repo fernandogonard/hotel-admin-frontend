@@ -1,14 +1,19 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Usado para navegación
-import { HiOutlineSearch } from 'react-icons/hi'; // Icono de búsqueda
-import { Bar } from 'react-chartjs-2'; // Para el gráfico de ocupación (requiere instalación de chart.js)
+import { Link, useNavigate } from 'react-router-dom';
+import { HiOutlineSearch } from 'react-icons/hi';
+import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import styles from '../assets/ReceptionistDashboard.module.css';
+import { useAuth } from '../hooks/useAuth';
+import ReceptionistChatbot from '../components/ReceptionistChatbot';
+import '../styles/corona.css';
 
 // Registrar las escalas y otros componentes necesarios
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function ReceptionistDashboard() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   // Datos de ejemplo para el gráfico de ocupación
   const data = {
     labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
@@ -24,66 +29,76 @@ function ReceptionistDashboard() {
   };
 
   return (
-    <div className={styles.layout}>
-      <aside className="sidebar">
-        <h2>Dashboard Recepcionista</h2>
+    <div className="corona-layout">
+      <aside className="corona-sidebar">
+        <h2 className="sidebar-title">Recepción</h2>
         <nav>
-          <ul>
-            <li><Link to="/reservas">Reservas</Link></li>
-            <li><Link to="/habitaciones">Habitaciones</Link></li>
-            <li><Link to="/clientes">Clientes</Link></li>
-          </ul>
+          <Link to="/receptionist-dashboard" className="sidebar-link">Dashboard</Link>
+          <Link to="/reservas" className="sidebar-link">Reservas</Link>
+          <Link to="/habitaciones" className="sidebar-link">Habitaciones</Link>
+          <Link to="/clientes" className="sidebar-link">Clientes</Link>
         </nav>
+        <button
+          onClick={async () => { await logout(); navigate('/login'); }}
+          className="corona-btn"
+          style={{ marginTop: 24 }}
+        >
+          Cerrar sesión
+        </button>
       </aside>
-      <main className={styles.main}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Panel de Recepcionista</h1>
-          <p className={styles.subtitle}>Aquí podrás gestionar las reservas y el estado de las habitaciones.</p>
-        </div>
-        {/* Barra de búsqueda */}
-        <div className={styles.search}>
-          <HiOutlineSearch style={{ color: 'var(--color-subtitle)', marginRight: '0.5rem' }} />
-          <input
-            type="text"
-            placeholder="Buscar reserva o cliente"
-            style={{ width: '100%', border: 'none', padding: '0.5rem', outline: 'none', background: 'transparent', color: 'var(--color-title)' }}
-          />
-        </div>
-        {/* Gráfico de ocupación */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Ocupación de Habitaciones</h2>
-          <Bar data={data} options={{ responsive: true }} />
-        </div>
-        {/* Lista de habitaciones */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Estado de las Habitaciones</h2>
-          <div className={styles.cards}>
-            <div className="card" style={{ textAlign: 'center', background: 'var(--success)', color: 'var(--card-bg)' }}>
-              <h3>Habitación 101</h3>
-              <p>Disponible</p>
-            </div>
-            <div className="card" style={{ textAlign: 'center', background: 'var(--danger)', color: 'var(--card-bg)' }}>
-              <h3>Habitación 102</h3>
-              <p>Ocupada</p>
-            </div>
-            <div className="card" style={{ textAlign: 'center', background: 'var(--text-light)', color: 'var(--card-bg)' }}>
-              <h3>Habitación 103</h3>
-              <p>Fuera de servicio</p>
+      <main className="corona-main">
+        <div className="corona-card">
+          <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: 8 }}>Panel de Recepcionista</h1>
+          <p style={{ color: 'var(--corona-muted)', marginBottom: 24 }}>Gestiona reservas, habitaciones y clientes desde un solo lugar.</p>
+          {/* Barra de búsqueda */}
+          <div className="search">
+            <HiOutlineSearch style={{ color: 'var(--color-subtitle)', marginRight: '0.5rem' }} />
+            <input
+              type="text"
+              placeholder="Buscar reserva o cliente"
+              style={{ width: '100%', border: 'none', padding: '0.5rem', outline: 'none', background: 'transparent', color: 'var(--color-title)' }}
+            />
+          </div>
+          {/* Gráfico de ocupación */}
+          <div style={{ marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Ocupación de Habitaciones</h2>
+            <Bar data={data} options={{ responsive: true }} />
+          </div>
+          {/* Lista de habitaciones */}
+          <div style={{ marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: 'var(--color-subtitle)', marginBottom: '1rem' }}>Estado de las Habitaciones</h2>
+            <div className="cards">
+              <div className="card" style={{ textAlign: 'center', background: 'var(--success)', color: 'var(--card-bg)' }}>
+                <h3>Habitación 101</h3>
+                <p>Disponible</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', background: 'var(--danger)', color: 'var(--card-bg)' }}>
+                <h3>Habitación 102</h3>
+                <p>Ocupada</p>
+              </div>
+              <div className="card" style={{ textAlign: 'center', background: 'var(--text-light)', color: 'var(--card-bg)' }}>
+                <h3>Habitación 103</h3>
+                <p>Fuera de servicio</p>
+              </div>
             </div>
           </div>
+          {/* Acción rápida */}
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button className="btn" style={{ width: '50%' }}>
+              Crear Reserva
+            </button>
+            <button className="btn" style={{ width: '50%', background: 'var(--success)' }}>
+              Gestionar Habitaciones
+            </button>
+          </div>
         </div>
-        {/* Acción rápida */}
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button className="btn" style={{ width: '50%' }}>
-            Crear Reserva
-          </button>
-          <button className="btn" style={{ width: '50%', background: 'var(--success)' }}>
-            Gestionar Habitaciones
-          </button>
+        {/* Chatbot Recepcionista */}
+        <div style={{ marginTop: 32, display: 'flex', justifyContent: 'center' }}>
+          <ReceptionistChatbot />
         </div>
-        <footer className={styles.footer}>
-          <span>© {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.</span>
-        </footer>
+        <div className="corona-footer">
+          © {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.
+        </div>
       </main>
     </div>
   );

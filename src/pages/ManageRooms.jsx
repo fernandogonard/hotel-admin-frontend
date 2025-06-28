@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { Link } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
-import styles from '../assets/ManageRooms.module.css';
+import '../styles/corona.css';
 import { toast } from 'react-toastify';
 import ModalConfirm from '../components/ModalConfirm';
 
@@ -102,15 +102,13 @@ function ManageRooms() {
   };
 
   return (
-    <div className={styles.layout}>
+    <div className="corona-layout">
       <Sidebar />
-      <main className={styles.main}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>Gestión de Habitaciones</h1>
-        </header>
-        <div className={styles.content}>
+      <main className="corona-main">
+        <div className="corona-card">
+          <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: 8 }}>Gestión de Habitaciones</h1>
           {/* Formulario */}
-          <form onSubmit={handleSubmit} className={`card ${styles.form}`}>
+          <form onSubmit={handleSubmit} className="card">
             <h2>{isEditing ? 'Editar' : 'Nueva'} Habitación</h2>
             <label htmlFor="number">Número</label>
             <input name="number" placeholder="Número" value={room.number} onChange={handleInputChange} required />
@@ -137,7 +135,7 @@ function ManageRooms() {
             {isEditing && <button type="button" className="btn btn-rojo" style={{ marginTop: 8 }} onClick={() => { setIsEditing(false); setRoom({ number: '', type: '', description: '', price: '', status: 'disponible', floor: '', capacity: '', amenities: [], images: [] }); }}>Cancelar</button>}
           </form>
           {/* Tabla de habitaciones */}
-          <div className={`card ${styles.table}`}>
+          <div className="card">
             <h2>Lista de Habitaciones</h2>
             <table className="table">
               <thead>
@@ -194,9 +192,9 @@ function ManageRooms() {
           onConfirm={modal.onConfirm}
           onCancel={() => setModal(m => ({ ...m, open: false }))}
         />
-        <footer className={styles.footer}>
-          <span>© {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.</span>
-        </footer>
+        <div className="corona-footer">
+          © {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.
+        </div>
       </main>
     </div>
   );

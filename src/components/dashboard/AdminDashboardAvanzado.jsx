@@ -15,6 +15,8 @@ import {
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import { FaHotel, FaUsers, FaDollarSign, FaCalendarAlt, FaCog } from 'react-icons/fa';
+import { useAuth } from '../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 // Registrar componentes de Chart.js
 ChartJS.register(
@@ -30,6 +32,8 @@ ChartJS.register(
 );
 
 const AdminDashboardAvanzado = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,44 +98,52 @@ const AdminDashboardAvanzado = () => {
   }
 
   return (
-    <div className="dashboard-avanzado">
-      <div className="dashboard-header">
-        <h1>Dashboard Administrativo</h1>
-        <FilterPanel 
-          dateRange={dateRange} 
-          onChange={handleDateChange}
-          onRefresh={loadDashboardData}
-        />
+    <div className="dashboard-avanzado-container">
+      <button
+        onClick={async () => { await logout(); navigate('/login'); }}
+        style={{ position: 'absolute', top: 16, right: 16, background: '#e63946', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontWeight: 600, cursor: 'pointer', zIndex: 10 }}
+      >
+        Cerrar sesión
+      </button>
+      <div className="dashboard-avanzado">
+        <div className="dashboard-header">
+          <h1>Dashboard Administrativo</h1>
+          <FilterPanel 
+            dateRange={dateRange} 
+            onChange={handleDateChange}
+            onRefresh={loadDashboardData}
+          />
+        </div>
+
+        {stats && (
+          <>
+            <div className="dashboard-overview">
+              <OverviewCards overview={stats.overview} />
+            </div>
+
+            <div className="dashboard-charts">
+              <div className="chart-section">
+                <h3>📊 Ocupación por Día</h3>
+                <OccupancyChart data={stats.charts.occupancy} />
+              </div>
+
+              <div className="chart-section">
+                <h3>💰 Ingresos Diarios</h3>
+                <IncomeChart data={stats.charts.revenue} />
+              </div>
+
+              <div className="chart-section">
+                <h3>🏨 Reservas por Tipo</h3>
+                <ReservationByTypeChart data={stats.charts.reservationsByType} />
+              </div>
+            </div>
+
+            <div className="dashboard-activity">
+              <ActivityLogList activities={activities} />
+            </div>
+          </>
+        )}
       </div>
-
-      {stats && (
-        <>
-          <div className="dashboard-overview">
-            <OverviewCards overview={stats.overview} />
-          </div>
-
-          <div className="dashboard-charts">
-            <div className="chart-section">
-              <h3>📊 Ocupación por Día</h3>
-              <OccupancyChart data={stats.charts.occupancy} />
-            </div>
-
-            <div className="chart-section">
-              <h3>💰 Ingresos Diarios</h3>
-              <IncomeChart data={stats.charts.revenue} />
-            </div>
-
-            <div className="chart-section">
-              <h3>🏨 Reservas por Tipo</h3>
-              <ReservationByTypeChart data={stats.charts.reservationsByType} />
-            </div>
-          </div>
-
-          <div className="dashboard-activity">
-            <ActivityLogList activities={activities} />
-          </div>
-        </>
-      )}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { Link } from 'react-router-dom';
-import styles from '../assets/Reports.module.css';
+import '../styles/corona.css';
 import Sidebar from '../components/Sidebar';
 import { toast } from 'react-toastify';
 
@@ -28,16 +28,14 @@ const Reports = () => {
   }, []);
 
   return (
-    <div className={styles.layout}>
+    <div className="corona-layout">
       <Sidebar />
-      <main className={styles.main}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>Informes</h1>
-        </header>
-        <section className={styles.content}>
+      <main className="corona-main">
+        <div className="corona-card">
+          <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: 8 }}>Reportes</h1>
           <div style={{ marginBottom: 24 }}>
             <button
-              className={styles.btnExport}
+              className="btn btn-primary"
               onClick={async () => {
                 try {
                   const res = await axiosInstance.get('/reports/reservations/export', {
@@ -62,7 +60,7 @@ const Reports = () => {
           </div>
           <div style={{ marginBottom: 24 }}>
             <button
-              className={styles.btnExport}
+              className="btn btn-primary"
               onClick={async () => {
                 try {
                   const res = await axiosInstance.get('/reports/rooms/export', {
@@ -87,7 +85,7 @@ const Reports = () => {
           </div>
           <div style={{ marginBottom: 24 }}>
             <button
-              className={styles.btnExport}
+              className="btn btn-primary"
               onClick={async () => {
                 try {
                   const res = await axiosInstance.get('/reports/guests/export', {
@@ -110,8 +108,8 @@ const Reports = () => {
               Descargar huéspedes (Excel)
             </button>
           </div>
-          <div className={styles.statsGrid}>
-            <div className={styles.card}>
+          <div className="corona-grid">
+            <div className="corona-card">
               <h2>Generales</h2>
               {generalReports && (
                 <ul>
@@ -121,7 +119,7 @@ const Reports = () => {
                 </ul>
               )}
             </div>
-            <div className={styles.card}>
+            <div className="corona-card">
               <h2>Reservas</h2>
               {reservationReports && (
                 <ul>
@@ -131,7 +129,7 @@ const Reports = () => {
                 </ul>
               )}
             </div>
-            <div className={styles.card}>
+            <div className="corona-card">
               <h2>Habitaciones</h2>
               {roomReports && (
                 <ul>
@@ -144,10 +142,10 @@ const Reports = () => {
               )}
             </div>
           </div>
-        </section>
-        <footer className={styles.footer}>
-          <span>© {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.</span>
-        </footer>
+        </div>
+        <div className="corona-footer">
+          © {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.
+        </div>
       </main>
     </div>
   );

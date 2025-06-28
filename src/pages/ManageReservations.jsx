@@ -1,7 +1,7 @@
 import React, { Suspense, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import ModalConfirm from '../components/ModalConfirm';
-import styles from '../assets/ManageReservations.module.css';
+import '../styles/corona.css';
 
 // Lazy loading de componentes
 const ReservationForm = React.lazy(() => import('../components/reservations/ReservationForm'));
@@ -39,68 +39,68 @@ function ManageReservations() {
   const [page, setPage] = useState(1);
 
   return (
-    <div className={styles.layout}>
+    <div className="corona-layout">
       <Sidebar />
-      <main className={styles.main}>
-        <header className={styles.header}>
-          <h1 className={styles.title}>Gestión de Reservas</h1>
-        </header>
-        
-        <Suspense fallback={<div>Cargando filtros...</div>}>
-          <ReservationFilters
-            filter={filter}
-            setFilter={setFilter}
-            activeRoom={activeRoom}
-            setActiveRoom={setActiveRoom}
-            fetchActiveByRoom={fetchActiveByRoom}
-            fetchReservations={fetchReservations}
-            estados={estados}
-          />
-        </Suspense>
-        
-        <div className={styles.content}>
-          {/* Formulario de reserva */}
-          <Suspense fallback={<div>Cargando formulario...</div>}>
-            <ReservationForm
-              reservation={reservation}
-              handleInputChange={handleInputChange}
-              handleSubmit={handleSubmit}
-              isEditing={isEditing}
-              formRef={formRef}
+      <main className="corona-main">
+        <div className="corona-card">
+          <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: 8 }}>Gestión de Reservas</h1>
+          
+          <Suspense fallback={<div>Cargando filtros...</div>}>
+            <ReservationFilters
+              filter={filter}
+              setFilter={setFilter}
+              activeRoom={activeRoom}
+              setActiveRoom={setActiveRoom}
+              fetchActiveByRoom={fetchActiveByRoom}
+              fetchReservations={fetchReservations}
+              estados={estados}
             />
           </Suspense>
           
-          {/* Tabla de reservas */}
-          <Suspense fallback={<div>Cargando tabla...</div>}>
-            <ReservationTable
-              filteredReservations={filteredReservations}
-              handleEdit={handleEdit}
-              handleDelete={handleDelete}
-              handleCancel={handleCancel}
-              handleCheckIn={handleCheckIn}
-              handleCheckOut={handleCheckOut}
-              handleSetAvailable={handleSetAvailable}
-            />
-          </Suspense>
+          <div className="content">
+            {/* Formulario de reserva */}
+            <Suspense fallback={<div>Cargando formulario...</div>}>
+              <ReservationForm
+                reservation={reservation}
+                handleInputChange={handleInputChange}
+                handleSubmit={handleSubmit}
+                isEditing={isEditing}
+                formRef={formRef}
+              />
+            </Suspense>
+            
+            {/* Tabla de reservas */}
+            <Suspense fallback={<div>Cargando tabla...</div>}>
+              <ReservationTable
+                filteredReservations={filteredReservations}
+                handleEdit={handleEdit}
+                handleDelete={handleDelete}
+                handleCancel={handleCancel}
+                handleCheckIn={handleCheckIn}
+                handleCheckOut={handleCheckOut}
+                handleSetAvailable={handleSetAvailable}
+              />
+            </Suspense>
+          </div>
+          
+          <div>
+            <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Anterior</button>
+            <span>Página {page}</span>
+            <button onClick={() => setPage(p => p + 1)}>Siguiente</button>
+          </div>
+          
+          <ModalConfirm
+            isOpen={modal.open}
+            title={modal.title}
+            message={modal.message}
+            onConfirm={modal.onConfirm}
+            onCancel={() => setModal(m => ({ ...m, open: false }))}
+          />
         </div>
         
-        <div>
-          <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Anterior</button>
-          <span>Página {page}</span>
-          <button onClick={() => setPage(p => p + 1)}>Siguiente</button>
+        <div className="corona-footer">
+          © {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.
         </div>
-        
-        <ModalConfirm
-          isOpen={modal.open}
-          title={modal.title}
-          message={modal.message}
-          onConfirm={modal.onConfirm}
-          onCancel={() => setModal(m => ({ ...m, open: false }))}
-        />
-        
-        <footer className={styles.footer}>
-          <span>© {new Date().getFullYear()} Hotel Admin. Todos los derechos reservados.</span>
-        </footer>
       </main>
     </div>
   );

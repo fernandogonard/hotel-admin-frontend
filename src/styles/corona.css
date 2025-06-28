@@ -1,0 +1,92 @@
+/* Estilos base inspirados en Corona React (no oficiales) */
+:root {
+  --corona-primary: #0090e7;
+  --corona-secondary: #6c757d;
+  --corona-success: #00d25b;
+  --corona-danger: #fc424a;
+  --corona-warning: #ffab00;
+  --corona-bg: #f5f7fb;
+  --corona-sidebar: #191c24;
+  --corona-card: #fff;
+  --corona-text: #343a40;
+  --corona-muted: #8f9bb3;
+}
+
+body {
+  background: var(--corona-bg);
+  color: var(--corona-text);
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+
+.corona-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.corona-sidebar {
+  background: var(--corona-sidebar);
+  color: #fff;
+  width: 240px;
+  min-height: 100vh;
+  padding: 32px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.corona-sidebar .sidebar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.corona-sidebar .sidebar-link {
+  color: #fff;
+  text-decoration: none;
+  padding: 12px 32px;
+  display: block;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  transition: background 0.2s;
+}
+.corona-sidebar .sidebar-link.active,
+.corona-sidebar .sidebar-link:hover {
+  background: var(--corona-primary);
+}
+
+.corona-main {
+  flex: 1;
+  padding: 40px 32px 32px 32px;
+  background: var(--corona-bg);
+}
+
+.corona-card {
+  background: var(--corona-card);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.corona-btn {
+  background: var(--corona-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.corona-btn:hover {
+  background: #0078c7;
+}
+
+.corona-footer {
+  text-align: center;
+  color: var(--corona-muted);
+  font-size: 0.95rem;
+  margin-top: 32px;
+  padding: 16px 0 0 0;
+}
